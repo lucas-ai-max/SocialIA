@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>mLabs Design System</title>
+
+<!-- ========================================
+     FONT FACES - Exact from reference
+     ======================================== -->
+<style>
+@font-face{font-family:Poppins;font-style:normal;font-weight:200;font-display:swap;src:url("assets/poppins-e45eb333_31df0efaf313.woff2") format('woff2')}
+@font-face{font-family:Poppins;font-style:normal;font-weight:300;font-display:swap;src:url("assets/poppins-de430313_c9c9016bdad6.woff2") format('woff2')}
+@font-face{font-family:Poppins;font-style:normal;font-weight:400;font-display:swap;src:url("assets/poppins-e6a077c3_4e21f2ab5b09.woff2") format('woff2')}
+@font-face{font-family:Poppins;font-style:normal;font-weight:500;font-display:swap;src:url("assets/poppins-57e843b6_b477fd9a3ae8.woff2") format('woff2')}
+@font-face{font-family:Poppins;font-style:normal;font-weight:600;font-display:swap;src:url("assets/poppins-93818c37_adfaadb9107a.woff2") format('woff2')}
+@font-face{font-family:Poppins;font-style:normal;font-weight:700;font-display:swap;src:url("assets/poppins-742b18be_62ced1611b3d.woff2") format('woff2')}
+@font-face{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fa-regular-400_1c1605e1e62b.woff2") format("woff2"),url("assets/fa-regular-400_5dbff9a44ba4.ttf") format("truetype")}
+@font-face{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:900;font-display:swap;src:url("assets/fa-solid-900_d6a655f41260.woff2") format("woff2"),url("assets/fa-solid-900_5a6089cfd772.ttf") format("truetype")}
+</style>
+
+<!-- ========================================
+     ELEMENTOR KIT GLOBALS - Exact from reference
+     ======================================== -->
+<style>
+.elementor-kit-5{
+  --e-global-color-primary:#F26526;
+  --e-global-color-secondary:#1A73E8;
+  --e-global-color-text:#474747;
+  --e-global-color-accent:#1F2937;
+  --e-global-color-f9ba961:#FFFFFF;
+  --e-global-typography-primary-font-family:"Poppins";
+  --e-global-typography-primary-font-size:32px;
+  --e-global-typography-primary-font-weight:500;
+  --e-global-typography-secondary-font-family:"Poppins";
+  --e-global-typography-secondary-font-size:22px;
+  --e-global-typography-secondary-font-weight:400;
+  --e-global-typography-text-font-family:"Poppins";
+  --e-global-typography-text-font-size:18px;
+  --e-global-typography-text-font-weight:400;
+  --e-global-typography-accent-font-family:"Poppins";
+  --e-global-typography-accent-font-size:18px;
+  --e-global-typography-accent-font-weight:500;
+}
+.elementor-kit-5 h2{color:#1f2937;font-size:20px;font-weight:700;line-height:1.4em}
+.elementor-kit-5 h3{color:#1f2937;font-size:18px;font-weight:500;line-height:1.4em}
+</style>
+
+<!-- ========================================
+     ELEMENTOR CORE STYLES (subset from reference)
+     ======================================== -->
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:"Poppins",sans-serif;font-size:16px;font-weight:400;color:#474747;background:#fff;-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto}
+a{text-decoration:none;color:inherit}
+
+/* Elementor container system */
+.e-con{--display:flex;display:var(--display);position:relative}
+.e-con.e-flex{flex-wrap:var(--flex-wrap,initial)}
+.e-con-boxed>.e-con-inner{max-width:min(var(--content-width,1140px),100%);margin:0 auto;width:100%}
+.e-con-boxed{padding-inline-start:var(--padding-left,0px);padding-inline-end:var(--padding-right,0px);padding-block-start:var(--padding-top,0px);padding-block-end:var(--padding-bottom,0px)}
+.e-con-inner{display:flex;flex-direction:var(--flex-direction,row);gap:var(--gap,20px);flex-wrap:var(--flex-wrap,wrap);align-items:var(--align-items,initial);justify-content:var(--justify-content,initial);width:100%}
+.e-con.e-parent{--content-width:1140px}
+.e-con-full{width:100%}
+
+/* Elementor widget base */
+.elementor-widget{width:100%}
+.elementor-widget-container{transition:background .3s,border .3s,border-radius .3s,box-shadow .3s}
+.elementor-widget__width-initial{width:auto;max-width:100%}
+
+/* Heading */
+.elementor-heading-title{margin:0;padding:0;font-family:"Poppins",sans-serif}
+.elementor-size-default{font-size:inherit}
+
+/* Button base from reference */
+.elementor-button{
+  background-color:#69727d;
+  border-radius:3px;
+  color:#fff;
+  display:inline-block;
+  fill:#fff;
+  font-size:15px;
+  font-family:"Poppins",sans-serif;
+  line-height:1;
+  padding:12px 24px;
+  text-align:center;
+  transition:all .3s;
+  cursor:pointer;
+  border:none;
+  text-decoration:none;
+}
+
+/* Button global override from elementor-kit */
+.elementor-kit-5 .elementor-button{
+  background-color:var(--e-global-color-secondary);
+  font-size:16px;
+  font-weight:500;
+  letter-spacing:1px;
+  fill:var(--e-global-color-f9ba961);
+  color:var(--e-global-color-f9ba961);
+  border-radius:50px;
+  padding:17px 30px;
+}
+
+/* Form fields from reference */
+.elementor-field-textual{
+  background-color:transparent;
+  border:1px solid #69727d;
+  color:#1f2124;
+  flex-grow:1;
+  max-width:100%;
+  vertical-align:middle;
+  width:100%;
+  border-radius:3px;
+  font-size:15px;
+  font-family:"Poppins",sans-serif;
+  line-height:1.4;
+  min-height:40px;
+  padding:5px 14px;
+}
+.elementor-field-textual:focus{box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);outline:0}
+.elementor-field-textual::placeholder{color:inherit;font-family:inherit;opacity:.6}
+
+/* Icon */
+.elementor-icon{display:inline-flex;align-items:center;justify-content:center;transition:.3s}
+.elementor-icon svg{width:1em;height:1em;fill:currentColor}
+.elementor-icon-wrapper{text-align:center}
+.e-font-icon-svg{width:1em;height:1em;fill:currentColor}
+
+/* Image */
+.elementor-widget-image img{vertical-align:middle}
+
+/* Text editor */
+.elementor-widget-text-editor{font-size:var(--e-global-typography-text-font-size);font-family:var(--e-global-typography-text-font-family)}
+
+/* Icon list from reference */
+.elementor-icon-list-items{list-style:none;margin:0;padding:0}
+.elementor-icon-list-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px}
+.elementor-icon-list-item a{display:flex;align-items:center;gap:8px;color:inherit;transition:color .3s}
+.elementor-icon-list-icon svg{width:14px;height:14px;fill:currentColor}
+
+/* Icon box from reference */
+.elementor-icon-box-wrapper{display:flex;gap:12px;align-items:flex-start;text-align:left}
+.elementor-icon-box-icon .elementor-icon{font-size:28px}
+.elementor-icon-box-title{margin:0;font-size:12px}
+.elementor-icon-box-description{margin:0;font-size:17px;font-weight:600}
+
+/* Swiper / Carousel */
+.swiper{overflow:hidden;position:relative}
+.swiper-wrapper{display:flex;transition-property:transform}
+.swiper-slide{flex-shrink:0;width:100%}
+
+/* Post card (mlabs-card) */
+.mlabs-card{border-radius:22px;box-shadow:0 0 8px 0 rgba(0,0,0,.1);overflow:hidden;background:#fff;transition:box-shadow .3s,transform .3s}
+.mlabs-card:hover{box-shadow:0 4px 16px 0 rgba(0,0,0,.15);transform:translateY(-2px)}
+
+/* Terms pill */
+.mlabs-terms-pill .elementor-post-info__terms-list a{
+  background:#f4f9fe;
+  color:var(--e-global-color-secondary);
+  border-radius:20px;
+  padding:4px 12px;
+  font-size:12px;
+  font-weight:500;
+  display:inline-block;
+}
+
+/* Responsive helpers */
+.elementor-hidden-desktop{display:none !important}
+@media(max-width:1024px){.elementor-hidden-tablet{display:none !important}.elementor-hidden-desktop{display:block !important}}
+@media(max-width:767px){.elementor-hidden-mobile{display:none !important}}
+
+/* Animations from reference */
+@keyframes slideInFromRight {
+  0%{transform:translateX(100px);opacity:0}
+  100%{transform:translateX(0);opacity:1}
+}
+@keyframes slideInFromTop {
+  0%{transform:translateY(-50px);opacity:0}
+  100%{transform:translateY(0);opacity:1}
+}
+@keyframes slideOutToTop {
+  0%{transform:translateY(0);opacity:1}
+  100%{transform:translateY(-50px);opacity:0}
+}
+@keyframes loadingOpacityAnimation{
+  0%{opacity:.3}
+  50%{opacity:1}
+  100%{opacity:.3}
+}
+@keyframes swiper-preloader-spin{
+  100%{transform:rotate(360deg)}
+}
+</style>
+
+<!-- ========================================
+     DESIGN SYSTEM SPECIFIC STYLES
+     ======================================== -->
+<style>
+/* Design System Navigation */
+.ds-nav{
+  position:sticky;
+  top:0;
+  z-index:9999;
+  background:var(--e-global-color-f9ba961);
+  border-bottom:1px solid #e5e7eb;
+  padding:12px 0;
+  font-family:"Poppins",sans-serif;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.ds-nav-inner{
+  max-width:1140px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  gap:24px;
+  padding:0 20px;
+  overflow-x:auto;
+  white-space:nowrap;
+}
+.ds-nav a{
+  color:var(--e-global-color-accent);
+  font-size:13px;
+  font-weight:500;
+  padding:6px 14px;
+  border-radius:50px;
+  transition:all .3s;
+  text-decoration:none;
+}
+.ds-nav a:hover{
+  background:var(--e-global-color-secondary);
+  color:#fff;
+}
+.ds-nav .ds-nav-brand{
+  font-weight:700;
+  font-size:14px;
+  color:var(--e-global-color-primary);
+  padding:6px 0;
+  margin-right:8px;
+  flex-shrink:0;
+}
+
+/* Section wrappers */
+.ds-section{
+  padding:80px 0 60px;
+  max-width:1140px;
+  margin:0 auto;
+  padding-left:20px;
+  padding-right:20px;
+}
+.ds-section-title{
+  font-family:"Poppins",sans-serif;
+  font-size:28px;
+  font-weight:600;
+  color:var(--e-global-color-accent);
+  margin:0 0 12px;
+  line-height:1.3;
+}
+.ds-section-desc{
+  font-family:"Poppins",sans-serif;
+  font-size:16px;
+  font-weight:300;
+  color:var(--e-global-color-text);
+  margin:0 0 40px;
+  max-width:640px;
+}
+.ds-divider{
+  border:none;
+  border-top:1px solid #e5e7eb;
+  margin:0;
+}
+
+/* Typography spec table */
+.ds-type-table{width:100%;border-collapse:collapse}
+.ds-type-table td{padding:20px 16px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.ds-type-table td:first-child{width:200px;font-size:12px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px}
+.ds-type-table td:last-child{font-size:12px;color:#9ca3af;text-align:right;white-space:nowrap;width:200px}
+
+/* Color swatches */
+.ds-color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px}
+.ds-color-swatch{border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.ds-color-preview{height:100px;display:flex;align-items:flex-end;padding:10px}
+.ds-color-info{padding:12px 14px;background:#fff;font-size:12px;font-family:"Poppins",sans-serif}
+.ds-color-name{font-weight:600;color:var(--e-global-color-accent);margin-bottom:2px}
+.ds-color-value{color:#9ca3af;font-size:11px}
+
+/* Surface demos */
+.ds-surface-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.ds-surface-item{border-radius:16px;padding:30px;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end;font-family:"Poppins",sans-serif}
+
+/* Component demos */
+.ds-component-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:32px}
+.ds-component-label{
+  font-size:12px;
+  font-weight:500;
+  color:#9ca3af;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-bottom:8px;
+  font-family:"Poppins",sans-serif;
+}
+
+/* Layout demo */
+.ds-layout-demo{
+  border:2px dashed #e5e7eb;
+  border-radius:12px;
+  padding:24px;
+  margin-bottom:24px;
+}
+.ds-layout-placeholder{
+  background:#f4f9fe;
+  border-radius:8px;
+  padding:20px;
+  text-align:center;
+  font-size:13px;
+  color:var(--e-global-color-secondary);
+  font-weight:500;
+  font-family:"Poppins",sans-serif;
+}
+
+/* Motion gallery */
+.ds-motion-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.ds-motion-card{
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  padding:30px;
+  text-align:center;
+  font-family:"Poppins",sans-serif;
+  overflow:hidden;
+}
+.ds-motion-card .ds-motion-target{
+  width:80px;
+  height:80px;
+  background:var(--e-global-color-secondary);
+  border-radius:12px;
+  margin:0 auto 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:600;
+  font-size:14px;
+}
+.ds-motion-card .ds-motion-label{font-size:13px;font-weight:500;color:var(--e-global-color-accent);margin-bottom:4px}
+.ds-motion-card .ds-motion-detail{font-size:11px;color:#9ca3af}
+.ds-motion-card:hover .anim-slide-right{animation:slideInFromRight .6s ease-out forwards}
+.ds-motion-card:hover .anim-slide-top{animation:slideInFromTop .5s ease-out forwards}
+.ds-motion-card:hover .anim-fade-pulse{animation:loadingOpacityAnimation 1.5s ease-in-out infinite}
+.ds-motion-card:hover .anim-btn-hover{
+  background-color:transparent;
+  background-image:linear-gradient(340deg,#5fc1f8 0,#1a73e8 100%);
+  box-shadow:0 7px 8px 2px rgba(0,0,0,.07);
+  transform:translateY(-2px);
+}
+.ds-motion-card:hover .anim-card-lift{
+  box-shadow:0 4px 16px 0 rgba(0,0,0,.15);
+  transform:translateY(-4px);
+}
+
+/* Icon grid */
+.ds-icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px}
+.ds-icon-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding:20px 10px;
+  border:1px solid #f0f0f0;
+  border-radius:12px;
+  font-size:12px;
+  color:#9ca3af;
+  transition:all .3s;
+}
+.ds-icon-item:hover{border-color:var(--e-global-color-secondary);color:var(--e-global-color-secondary)}
+.ds-icon-item svg{width:28px;height:28px;fill:var(--e-global-color-accent);transition:fill .3s}
+.ds-icon-item:hover svg{fill:var(--e-global-color-secondary)}
+</style>
+
+</head>
+<body class="elementor-kit-5">
+
+<!-- ========================================
+     NAVIGATION
+     ======================================== -->
+<nav class="ds-nav">
+  <div class="ds-nav-inner">
+    <span class="ds-nav-brand">mLabs DS</span>
+    <a href="#hero">Hero</a>
+    <a href="#typography">Tipografia</a>
+    <a href="#colors">Cores</a>
+    <a href="#components">Componentes</a>
+    <a href="#layout">Layout</a>
+    <a href="#motion">Motion</a>
+    <a href="#icons">Icones</a>
+  </div>
+</nav>
+
+
+<!-- ================================================================
+     SECTION 0: HERO (Exact Clone, Text Adapted)
+     ================================================================ -->
+<section id="hero">
+<div class="elementor elementor-80" data-elementor-id="80">
+
+<main class="elementor-element elementor-element-841c5d5 e-flex e-con-boxed e-con e-parent" data-e-type="container" data-element_type="container" data-id="841c5d5" style="--display:flex;--min-height:700px;--flex-direction:row;--container-widget-width:initial;--container-widget-height:100%;--container-widget-flex-grow:1;--container-widget-align-self:stretch;--flex-wrap-mobile:wrap;--gap:0px 0px;background-image:url('assets/bg-zero-branco-1-1_2720aaae58c8.webp');background-position:top center;background-repeat:no-repeat;background-size:cover;">
+<div class="e-con-inner">
+<div class="elementor-element elementor-element-2f73807 e-con-full e-flex e-con e-child" data-e-type="container" data-element_type="container" data-id="2f73807" style="--flex-direction:column;--justify-content:center;--padding-top:40px;--padding-bottom:40px;--padding-left:20px;">
+
+<div class="elementor-element elementor-element-2dc4aa7 elementor-widget__width-initial elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="2dc4aa7" data-widget_type="heading.default" style="max-width:520px;">
+<h1 class="elementor-heading-title elementor-size-default" style="font-size:38px;font-weight:600;line-height:46px;color:var(--e-global-color-accent);">Design System da mLabs: todos os componentes visuais reunidos!</h1>
+</div>
+
+<div class="elementor-element elementor-element-968a7b6 elementor-widget-mobile__width-initial elementor-widget__width-initial elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="968a7b6" data-widget_type="heading.default" style="max-width:476px;margin-top:20px;">
+<h2 class="elementor-heading-title elementor-size-default" style="font-size:18px;font-weight:300;line-height:28px;color:var(--e-global-color-text);">Tipografia, cores, botoes, cards, formularios, animacoes e padroes de layout. Tudo documentado em um unico lugar.</h2>
+</div>
+
+<div class="elementor-element elementor-element-427e843 e-con-full e-flex e-con e-child" data-e-type="container" data-element_type="container" data-id="427e843" style="--flex-direction:row;--align-items:center;--gap:0;margin-top:16px;--flex-wrap:nowrap;">
+<div class="elementor-element elementor-element-a4a9440 elementor-widget-mobile__width-auto elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="a4a9440" data-widget_type="heading.default">
+<div class="elementor-heading-title elementor-size-default" style="font-size:19px;font-weight:500;color:var(--e-global-color-text);">Tudo por</div>
+</div>
+<div class="elementor-element elementor-element-f3a62da elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="f3a62da" data-widget_type="heading.default" style="margin-left:5px;">
+<div class="elementor-heading-title elementor-size-default" style="font-size:21px;font-weight:700;color:var(--e-global-color-primary);">R$</div>
+</div>
+<div class="elementor-element elementor-element-e6ae770 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="e6ae770" data-widget_type="heading.default" style="margin-left:6px;">
+<div class="elementor-heading-title elementor-size-default" style="font-size:32px;font-weight:700;color:var(--e-global-color-primary);">29,90</div>
+</div>
+<div class="elementor-element elementor-element-09d4c42 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="09d4c42" data-widget_type="heading.default" style="background-color:#feeee7;margin-left:10px;padding:8px 10px 5px;border-radius:36px;">
+<div class="elementor-heading-title elementor-size-default" style="font-size:12px;font-weight:600;color:var(--e-global-color-primary);">/mes, por marca*</div>
+</div>
+</div>
+
+<div class="elementor-element elementor-element-a84474f elementor-mobile-align-center elementor-widget elementor-widget-button" data-e-type="widget" data-element_type="widget" data-id="a84474f" data-widget_type="button.default" style="margin-top:24px;">
+<a class="elementor-button elementor-button-link elementor-size-sm" href="#components" style="background-color:var(--e-global-color-secondary);font-size:16px;font-weight:500;letter-spacing:1px;color:#fff;border-radius:50px;padding:17px 30px;transition:all .3s;">
+<span class="elementor-button-content-wrapper">
+<span class="elementor-button-text">EXPLORAR COMPONENTES</span>
+</span>
+</a>
+</div>
+
+<div class="elementor-element elementor-element-bb9bd3c e-con-full e-flex e-con e-child" data-e-type="container" data-element_type="container" data-id="bb9bd3c" style="--flex-direction:row;--align-items:center;--gap:8px;margin-top:16px;">
+<div class="elementor-element elementor-element-961326d elementor-view-default elementor-widget elementor-widget-icon" data-e-type="widget" data-element_type="widget" data-id="961326d" data-widget_type="icon.default">
+<div class="elementor-icon-wrapper">
+<div class="elementor-icon" style="color:var(--e-global-color-secondary);">
+<svg aria-hidden="true" class="e-font-icon-svg e-far-check-circle" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"></path></svg>
+</div>
+</div>
+</div>
+<div class="elementor-element elementor-element-4a60af8 elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-id="4a60af8" data-widget_type="heading.default">
+<div class="elementor-heading-title elementor-size-default" style="font-size:14px;color:var(--e-global-color-text);">Baseado na interface real da mlabs.com.br</div>
+</div>
+</div>
+
+</div>
+
+<!-- Hero right side: platform image (desktop only) -->
+<div class="elementor-element elementor-element-d274995 e-con-full elementor-hidden-mobile e-flex e-con e-child" data-e-type="container" style="--flex-direction:column;--justify-content:center;--align-items:center;flex:1;">
+<div class="elementor-element elementor-widget elementor-widget-image">
+<img alt="Funcionalidades mLabs" height="554" src="assets/mlabs-plataforma-gerenciamento_b587ab4bf023.webp" style="max-width:520px;width:100%;" title="Funcionalidades mLabs"/>
+</div>
+</div>
+
+</div>
+</main>
+
+</div>
+</section>
+
+
+<!-- ================================================================
+     SECTION 1: TYPOGRAPHY
+     ================================================================ -->
+<section id="typography">
+<div class="ds-section">
+  <h2 class="ds-section-title">Tipografia</h2>
+  <p class="ds-section-desc">Familia tipografica Poppins com pesos de 200 a 700. Todas as variacoes abaixo sao extraidas do site de referencia.</p>
+
+  <table class="ds-type-table">
+    <tr>
+      <td>H1 - Hero Title</td>
+      <td><h1 class="elementor-heading-title elementor-size-default" style="font-size:38px;font-weight:600;line-height:46px;color:var(--e-global-color-accent);margin:0;">Gerencie todas as midias sociais</h1></td>
+      <td>38px / 46px / 600</td>
+    </tr>
+    <tr>
+      <td>H2 - Section Title</td>
+      <td><h2 class="elementor-heading-title elementor-size-default" style="font-size:20px;font-weight:700;line-height:1.4em;color:#1f2937;margin:0;">Para agencias, profissionais de marketing e empresas!</h2></td>
+      <td>20px / 1.4em / 700</td>
+    </tr>
+    <tr>
+      <td>H3 - Card/Feature Title</td>
+      <td><h3 class="elementor-heading-title elementor-size-default" style="font-size:18px;font-weight:500;line-height:1.4em;color:#1f2937;margin:0;">Controle o fluxo de criacao e aprovacao de posts</h3></td>
+      <td>18px / 1.4em / 500</td>
+    </tr>
+    <tr>
+      <td>H4 - Testimonial Role</td>
+      <td><h4 class="elementor-heading-title elementor-size-default" style="font-size:14px;font-weight:400;color:var(--e-global-color-text);margin:0;">Socia e Diretora de Social Media</h4></td>
+      <td>14px / auto / 400</td>
+    </tr>
+    <tr>
+      <td>Body Text (Primary)</td>
+      <td><p style="font-size:18px;font-weight:400;color:var(--e-global-color-text);font-family:'Poppins',sans-serif;margin:0;">A mLabs possui recursos para integracao de times e gestao do fluxo de trabalho. Veja o historico de entregas!</p></td>
+      <td>18px / auto / 400</td>
+    </tr>
+    <tr>
+      <td>Body Text (Secondary)</td>
+      <td><p style="font-size:16px;font-weight:400;color:var(--e-global-color-text);font-family:'Poppins',sans-serif;margin:0;">Teste a mLabs com marcas, usuarios e relatorios ilimitados!</p></td>
+      <td>16px / auto / 400</td>
+    </tr>
+    <tr>
+      <td>Hero Subtitle</td>
+      <td><p style="font-size:18px;font-weight:300;line-height:28px;color:var(--e-global-color-text);font-family:'Poppins',sans-serif;margin:0;">Agendamento de posts. Relatorios e Dashboards automatizados.</p></td>
+      <td>18px / 28px / 300</td>
+    </tr>
+    <tr>
+      <td>CTA Heading</td>
+      <td><div style="font-size:36px;font-weight:700;color:var(--e-global-color-primary);font-family:'Poppins',sans-serif;margin:0;">Tudo por R$ 29,90/mes!*</div></td>
+      <td>36px / auto / 700</td>
+    </tr>
+    <tr>
+      <td>Small / Caption</td>
+      <td><p style="font-size:12px;font-weight:400;color:var(--e-global-color-text);font-family:'Poppins',sans-serif;margin:0;">*Valor equivalente por mes na assinatura anual para uma marca, com pagamento a vista via Pix.</p></td>
+      <td>12px / auto / 400</td>
+    </tr>
+    <tr>
+      <td>Price Tag</td>
+      <td>
+        <span style="display:inline-flex;align-items:center;gap:4px;font-family:'Poppins',sans-serif;">
+          <span style="font-size:19px;font-weight:500;color:var(--e-global-color-text);">Tudo por</span>
+          <span style="font-size:21px;font-weight:700;color:var(--e-global-color-primary);">R$</span>
+          <span style="font-size:32px;font-weight:700;color:var(--e-global-color-primary);">29,90</span>
+          <span style="background-color:#feeee7;padding:8px 10px 5px;border-radius:36px;font-size:12px;font-weight:600;color:var(--e-global-color-primary);">/mes, por marca*</span>
+        </span>
+      </td>
+      <td>Mixed / see spec</td>
+    </tr>
+    <tr>
+      <td>Button Text</td>
+      <td><span style="font-size:16px;font-weight:500;letter-spacing:1px;text-transform:uppercase;font-family:'Poppins',sans-serif;color:var(--e-global-color-secondary);">TESTE GRATIS</span></td>
+      <td>16px / 500 / ls:1px</td>
+    </tr>
+    <tr>
+      <td>Nav Link</td>
+      <td><span style="font-size:14px;font-weight:500;letter-spacing:.5px;font-family:'Poppins',sans-serif;color:var(--e-global-color-accent);">Funcionalidades</span></td>
+      <td>14px / 500 / ls:.5px</td>
+    </tr>
+  </table>
+</div>
+</section>
+<hr class="ds-divider"/>
+
+
+<!-- ================================================================
+     SECTION 2: COLORS & SURFACES
+     ================================================================ -->
+<section id="colors">
+<div class="ds-section">
+  <h2 class="ds-section-title">Cores e Superficies</h2>
+  <p class="ds-section-desc">Paleta de cores globais definida no Elementor Kit, backgrounds de secao, gradientes e superficies.</p>
+
+  <!-- Global Colors -->
+  <div class="ds-component-label">Cores Globais (Elementor Kit)</div>
+  <div class="ds-color-grid" style="margin-bottom:40px;">
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#F26526;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Primary</div>
+        <div class="ds-color-value">#F26526 -- --e-global-color-primary</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#1A73E8;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Secondary</div>
+        <div class="ds-color-value">#1A73E8 -- --e-global-color-secondary</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#474747;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Text</div>
+        <div class="ds-color-value">#474747 -- --e-global-color-text</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#1F2937;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Accent (Headings)</div>
+        <div class="ds-color-value">#1F2937 -- --e-global-color-accent</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#FFFFFF;border:1px solid #e5e7eb;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">White</div>
+        <div class="ds-color-value">#FFFFFF -- --e-global-color-f9ba961</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#ffa040;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Accent Orange (Mobile CTA)</div>
+        <div class="ds-color-value">#FFA040</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#feeee7;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Price Badge BG</div>
+        <div class="ds-color-value">#FEEEE7</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#f4f9fe;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Section Light Blue</div>
+        <div class="ds-color-value">#F4F9FE</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#525252;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Footer Text / Icon</div>
+        <div class="ds-color-value">#525252</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-color:#0a3061;"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Footer Icon Dark</div>
+        <div class="ds-color-value">#0A3061</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Gradients -->
+  <div class="ds-component-label">Gradientes</div>
+  <div class="ds-color-grid" style="margin-bottom:40px;">
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-image:linear-gradient(340deg,#5fc1f8 0,#1a73e8 100%);"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Button Hover Gradient</div>
+        <div class="ds-color-value">linear-gradient(340deg, #5fc1f8, #1a73e8)</div>
+      </div>
+    </div>
+
+    <div class="ds-color-swatch">
+      <div class="ds-color-preview" style="background-image:linear-gradient(180deg,#5fc1f8 0,#006ac6 100%);"></div>
+      <div class="ds-color-info">
+        <div class="ds-color-name">Header CTA Button</div>
+        <div class="ds-color-value">linear-gradient(180deg, #5fc1f8, #006ac6)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Surfaces -->
+  <div class="ds-component-label">Superficies e Backgrounds</div>
+  <div class="ds-surface-grid">
+
+    <div class="ds-surface-item" style="background-color:#FFFFFF;border:1px solid #e5e7eb;">
+      <span style="font-size:13px;font-weight:500;color:var(--e-global-color-accent);">White (Page/Card Default)</span>
+      <span style="font-size:11px;color:#9ca3af;">#FFFFFF</span>
+    </div>
+
+    <div class="ds-surface-item" style="background-color:#f4f9fe;">
+      <span style="font-size:13px;font-weight:500;color:var(--e-global-color-accent);">Light Blue (Alt Sections)</span>
+      <span style="font-size:11px;color:#9ca3af;">#F4F9FE</span>
+    </div>
+
+    <div class="ds-surface-item" style="background-color:var(--e-global-color-primary);background-image:url('assets/bg-apartir-desk_0216974a3220.webp');background-size:auto;background-position:center;background-repeat:repeat;">
+      <span style="font-size:13px;font-weight:500;color:#fff;">CTA Section (Primary + Pattern)</span>
+      <span style="font-size:11px;color:rgba(255,255,255,.7);">bg-apartir-desk + #F26526</span>
+    </div>
+
+    <div class="ds-surface-item" style="background-image:url('assets/bg-zero-branco-1-1_2720aaae58c8.webp');background-size:cover;background-position:top center;">
+      <span style="font-size:13px;font-weight:500;color:var(--e-global-color-accent);">Hero Background</span>
+      <span style="font-size:11px;color:#9ca3af;">bg-zero-branco-1-1.webp</span>
+    </div>
+
+    <div class="ds-surface-item" style="background-color:#fff;border-radius:22px;box-shadow:0 0 8px 0 rgba(0,0,0,.1);">
+      <span style="font-size:13px;font-weight:500;color:var(--e-global-color-accent);">Card Surface (Testimonial)</span>
+      <span style="font-size:11px;color:#9ca3af;">radius:22px / shadow:0 0 8px rgba(0,0,0,.1)</span>
+    </div>
+
+    <div class="ds-surface-item" style="background-color:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);">
+      <span style="font-size:13px;font-weight:500;color:var(--e-global-color-accent);">Blog Card Surface</span>
+      <span style="font-size:11px;color:#9ca3af;">mlabs-card / radius:22px</span>
+    </div>
+
+  </div>
+</div>
+</section>
+<hr class="ds-divider"/>
+
+
+<!-- ================================================================
+     SECTION 3: UI COMPONENTS
+     ================================================================ -->
+<section id="components">
+<div class="ds-section">
+  <h2 class="ds-section-title">Componentes de Interface</h2>
+  <p class="ds-section-desc">Botoes, inputs, cards e componentes extraidos do site de referencia, com seus estados interativos.</p>
+
+  <!-- BUTTONS -->
+  <div class="ds-component-label">Botoes</div>
+
+  <div style="margin-bottom:40px;">
+    <!-- Primary CTA Button -->
+    <p style="font-size:11px;color:#9ca3af;margin:0 0 8px;font-family:'Poppins',sans-serif;">Primary CTA (Hero / Feature sections)</p>
+    <div class="ds-component-row">
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:var(--e-global-color-secondary);font-size:16px;font-weight:500;letter-spacing:1px;color:#fff;border-radius:50px;padding:17px 30px;transition:all .3s;">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">TESTE GRATIS</span></span>
+      </a>
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:transparent;background-image:linear-gradient(340deg,#5fc1f8 0,#1a73e8 100%);font-size:16px;font-weight:500;letter-spacing:1px;color:#fff;border-radius:50px;padding:17px 30px;box-shadow:0 7px 8px 2px rgba(0,0,0,.07);">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">:HOVER</span></span>
+      </a>
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:var(--e-global-color-secondary);font-size:16px;font-weight:500;letter-spacing:1px;color:#fff;border-radius:50px;padding:17px 30px;opacity:.5;pointer-events:none;">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">:DISABLED</span></span>
+      </a>
+    </div>
+
+    <!-- Header Login Button -->
+    <p style="font-size:11px;color:#9ca3af;margin:0 0 8px;font-family:'Poppins',sans-serif;">Header CTA (Gradient)</p>
+    <div class="ds-component-row">
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:transparent;background-image:linear-gradient(180deg,#5fc1f8 0,#006ac6 100%);font-size:14px;font-weight:500;letter-spacing:.5px;color:#fff;border-radius:50px;padding:12px 16px;">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">TESTE GRATIS</span></span>
+      </a>
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:var(--e-global-color-secondary);font-size:14px;font-weight:500;letter-spacing:.5px;color:#fff;border-radius:50px;padding:12px 16px;box-shadow:0 0 10px 4px rgba(0,0,0,.13);">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">:HOVER</span></span>
+      </a>
+    </div>
+
+    <!-- Header Secondary Button (Entrar) -->
+    <p style="font-size:11px;color:#9ca3af;margin:0 0 8px;font-family:'Poppins',sans-serif;">Header Secondary (Entrar)</p>
+    <div class="ds-component-row">
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:#fff;font-size:14px;font-weight:500;letter-spacing:.5px;color:#525252;border:1px solid #525252;border-radius:50px;padding:12px 16px;">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">Entrar</span></span>
+      </a>
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:#fff;font-size:14px;font-weight:500;letter-spacing:.5px;color:#525252;border:1px solid #525252;border-radius:50px;padding:12px 16px;box-shadow:0 0 10px 4px rgba(0,0,0,.13);">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">:HOVER</span></span>
+      </a>
+    </div>
+
+    <!-- Top Banner Button (Outlined/Transparent) -->
+    <p style="font-size:11px;color:#9ca3af;margin:0 0 8px;font-family:'Poppins',sans-serif;">Top Banner Button (Outlined White)</p>
+    <div class="ds-component-row" style="background:var(--e-global-color-accent);padding:16px 20px;border-radius:12px;">
+      <a class="elementor-button elementor-button-link elementor-size-sm" href="#" style="background-color:transparent;font-size:14px;font-weight:500;color:#fff;border:1px solid #fff;border-radius:10px;padding:12px 16px;">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">SAIBA MAIS</span></span>
+      </a>
+    </div>
+
+    <!-- Form Submit Button -->
+    <p style="font-size:11px;color:#9ca3af;margin:20px 0 8px;font-family:'Poppins',sans-serif;">Form Submit (CTA Section)</p>
+    <div class="ds-component-row">
+      <button class="elementor-button elementor-size-lg" type="button" style="background-color:var(--e-global-color-secondary);color:#fff;font-size:15px;font-weight:600;letter-spacing:.8px;border-radius:50px;padding:17px 30px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;">
+        <span class="elementor-button-content-wrapper"><span class="elementor-button-text">TESTE GRATIS</span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- FORM INPUTS -->
+  <div class="ds-component-label">Campos de Formulario</div>
+  <div style="margin-bottom:40px;">
+
+    <p style="font-size:11px;color:#9ca3af;margin:0 0 8px;font-family:'Poppins',sans-serif;">Default Input (From CTA form)</p>
+    <div class="ds-component-row">
+      <input class="elementor-field elementor-size-lg elementor-field-textual" placeholder="Nome Completo" type="text" style="max-width:280px;background-color:#fff;border-width:0;border-radius:50px;font-size:15px;font-weight:300;padding:12px 20px;font-family:'Poppins',sans-serif;"/>
+      <input class="elementor-field elementor-size-lg elementor-field-textual" placeholder="E-mail" type="email" style="max-width:280px;background-color:#fff;border-width:0;border-radius:50px;font-size:15px;font-weight:300;padding:12px 20px;font-family:'Poppins',sans-serif;"/>
+      <input class="elementor-field elementor-size-lg elementor-field-textual" placeholder="Crie sua senha" type="password" style="max-width:280px;background-color:#fff;border-width:0;border-radius:50px;font-size:15px;font-weight:300;padding:12px 20px;font-family:'Poppins',sans-serif;"/>
+    </div>
+
+    <p style="font-size:11px;color:#9ca3af;margin:16px 0 8px;font-family:'Poppins',sans-serif;">CTA Form (Full Row) -- on Primary background</p>
+    <div style="background-color:var(--e-global-color-primary);background-image:url('assets/bg-apartir-desk_0216974a3220.webp');background-size:auto;background-position:center;background-repeat:repeat;border-radius:16px;padding:40px 30px;">
+      <div style="text-align:center;margin-bottom:10px;font-size:36px;font-weight:700;color:#fff;font-family:'Poppins',sans-serif;">Tudo por R$ 29,90/mes!*</div>
+      <div style="text-align:center;margin-bottom:20px;font-size:16px;font-weight:400;color:#fff;font-family:'Poppins',sans-serif;">Teste a mLabs com marcas, usuarios e relatorios ilimitados!</div>
+      <form style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:900px;margin:0 auto;">
+        <input class="elementor-field elementor-size-lg elementor-field-textual" placeholder="Nome Completo" type="text" style="flex:1;min-width:180px;background-color:#fff;border-width:0;border-radius:50px;font-size:15px;font-weight:300;padding:12px 20px;font-family:'Poppins',sans-serif;"/>
+        <input class="elementor-field elementor-size-lg elementor-field-textual" placeholder="E-mail" type="email" style="flex:1;min-width:180px;background-color:#fff;border-width:0;border-radius:50px;font-size:15px;font-weight:300;padding:12px 20px;font-family:'Poppins',sans-serif;"/>
+        <input class="elementor-field elementor-size-lg elementor-field-textual" placeholder="Crie sua senha" type="password" style="flex:1;min-width:180px;background-color:#fff;border-width:0;border-radius:50px;font-size:15px;font-weight:300;padding:12px 20px;font-family:'Poppins',sans-serif;"/>
+        <button class="elementor-button elementor-size-lg" type="button" style="background-color:var(--e-global-color-secondary);color:#fff;font-size:15px;font-weight:600;letter-spacing:.8px;border-radius:50px;padding:12px 30px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;">
+          <span class="elementor-button-content-wrapper"><span class="elementor-button-text">TESTE GRATIS</span></span>
+        </button>
+      </form>
+      <div style="text-align:center;margin-top:16px;font-size:12px;color:#fff;font-family:'Poppins',sans-serif;">Nao pedimos cartao de credito. Nao fazemos SPAM.</div>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="ds-component-label">Cards</div>
+
+  <div style="margin-bottom:40px;">
+    <!-- Testimonial Card -->
+    <p style="font-size:11px;color:#9ca3af;margin:0 0 12px;font-family:'Poppins',sans-serif;">Card Depoimento (Testimonial)</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:24px;">
+
+      <div style="background:#fff;border-radius:22px;box-shadow:0 0 8px 0 rgba(0,0,0,.1);padding:30px 30px 20px 20px;min-height:260px;display:flex;flex-direction:column;">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;">
+          <div style="display:flex;gap:12px;align-items:center;flex:1;">
+            <img alt="Carolina Lima" height="60" src="assets/carolina-lima_bd61d3d5fb5d.webp" style="border-radius:50%;width:60px;height:60px;object-fit:cover;" width="60"/>
+            <div>
+              <h3 class="elementor-heading-title elementor-size-default" style="font-size:16px;font-weight:600;color:var(--e-global-color-accent);margin:0;">Carolina Lima</h3>
+              <h4 class="elementor-heading-title elementor-size-default" style="font-size:13px;font-weight:400;color:var(--e-global-color-text);margin:2px 0 0;">Socia e Diretora de Social Media</h4>
+            </div>
+          </div>
+          <img alt="8D Hubify" height="35" src="assets/logo-8d-hubify_88447dea4fd2.webp" style="height:35px;width:auto;"/>
+        </div>
+        <p style="font-size:15px;font-weight:400;color:var(--e-global-color-text);font-family:'Poppins',sans-serif;line-height:1.6;margin:0;flex:1;">Na 8D Hubify, temos muitos clientes com escopo de Social Media. Escolhemos a mLabs por varios fatores: usabilidade, facilidade na gestao de grandes equipes, suporte muito rapido!</p>
+      </div>
+
+      <div style="background:#fff;border-radius:22px;box-shadow:0 0 8px 0 rgba(0,0,0,.1);padding:30px 30px 20px 20px;min-height:260px;display:flex;flex-direction:column;">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;">
+          <div style="display:flex;gap:12px;align-items:center;flex:1;">
+            <img alt="Joao Brognoli" height="60" src="assets/joao-brognoli_cee283e6248f.webp" style="border-radius:50%;width:60px;height:60px;object-fit:cover;" width="60"/>
+            <div>
+              <h3 class="elementor-heading-title elementor-size-default" style="font-size:16px;font-weight:600;color:var(--e-global-color-accent);margin:0;">Joao Bragnoli</h3>
+              <h4 class="elementor-heading-title elementor-size-default" style="font-size:13px;font-weight:400;color:var(--e-global-color-text);margin:2px 0 0;">CEO</h4>
+            </div>
+          </div>
+          <img alt="Duo" height="35" src="assets/logo-duo_fb87020a9114.webp" style="height:35px;width:auto;"/>
+        </div>
+        <p style="font-size:15px;font-weight:400;color:var(--e-global-color-text);font-family:'Poppins',sans-serif;line-height:1.6;margin:0;flex:1;">Gerenciamos as redes sociais de mais de 80 clientes da agencia pela mLabs e isso simplificou muito nosso trabalho.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="margin-bottom:40px;">
+    <!-- Blog Card (mlabs-card) -->
+    <p style="font-size:11px;color:#9ca3af;margin:0 0 12px;font-family:'Poppins',sans-serif;">Card Blog Post (mlabs-card)</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;">
+
+      <div class="mlabs-card" style="display:flex;flex-direction:column;">
+        <div style="overflow:hidden;border-radius:22px 22px 0 0;">
+          <img alt="Inbox Unificada" src="assets/Inbox-Unificada-300x121_18ed6f425bf3.png" style="width:100%;height:180px;object-fit:cover;display:block;"/>
+        </div>
+        <div style="padding:20px;">
+          <span style="background:#f4f9fe;color:var(--e-global-color-secondary);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;display:inline-block;margin-bottom:12px;">Gerenciamento</span>
+          <h3 style="font-size:16px;font-weight:600;color:var(--e-global-color-accent);margin:0 0 8px;font-family:'Poppins',sans-serif;">Inbox Unificada</h3>
+          <p style="font-size:14px;color:var(--e-global-color-text);margin:0;font-family:'Poppins',sans-serif;line-height:1.5;">Centralize todas as mensagens das redes sociais em um unico lugar.</p>
+        </div>
+      </div>
+
+      <div class="mlabs-card" style="display:flex;flex-direction:column;">
+        <div style="overflow:hidden;border-radius:22px 22px 0 0;">
+          <img alt="Kiso Insights" src="assets/Kiso-Insights-102-300x121_db688283af2a.webp" style="width:100%;height:180px;object-fit:cover;display:block;"/>
+        </div>
+        <div style="padding:20px;">
+          <span style="background:#f4f9fe;color:var(--e-global-color-secondary);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;display:inline-block;margin-bottom:12px;">Insights</span>
+          <h3 style="font-size:16px;font-weight:600;color:var(--e-global-color-accent);margin:0 0 8px;font-family:'Poppins',sans-serif;">Kiso Insights</h3>
+          <p style="font-size:14px;color:var(--e-global-color-text);margin:0;font-family:'Poppins',sans-serif;line-height:1.5;">Analise e monitore tendencias de conteudo e performance nas redes sociais.</p>
+        </div>
+      </div>
+
+      <div class="mlabs-card" style="display:flex;flex-direction:column;">
+        <div style="overflow:hidden;border-radius:22px 22px 0 0;">
+          <img alt="Automacao Instagram" src="assets/Automacao-no-Instagram-300x121_fc2eb5742b09.webp" style="width:100%;height:180px;object-fit:cover;display:block;"/>
+        </div>
+        <div style="padding:20px;">
+          <span style="background:#f4f9fe;color:var(--e-global-color-secondary);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;display:inline-block;margin-bottom:12px;">Automacao</span>
+          <h3 style="font-size:16px;font-weight:600;color:var(--e-global-color-accent);margin:0 0 8px;font-family:'Poppins',sans-serif;">Automacao no Instagram</h3>
+          <p style="font-size:14px;color:var(--e-global-color-text);margin:0;font-family:'Poppins',sans-serif;line-height:1.5;">Automatize respostas e interacoes no Instagram com inteligencia artificial.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ICON BOX -->
+  <div class="ds-component-label">Icon Box (App Store / Google Play)</div>
+  <div class="ds-component-row" style="margin-bottom:40px;">
+
+    <div style="display:flex;gap:12px;align-items:center;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;transition:all .3s;cursor:pointer;" onmouseenter="this.style.backgroundColor='var(--e-global-color-primary)';this.style.color='#fff';this.style.borderColor='var(--e-global-color-primary)'" onmouseleave="this.style.backgroundColor='';this.style.color='';this.style.borderColor='#e5e7eb'">
+      <svg aria-hidden="true" class="e-font-icon-svg e-fab-apple" viewbox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;fill:currentColor;"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"></path></svg>
+      <div>
+        <p style="font-size:12px;font-weight:400;color:inherit;margin:0;font-family:'Poppins',sans-serif;">Disponivel na</p>
+        <p style="font-size:17px;font-weight:600;color:inherit;margin:0;font-family:'Poppins',sans-serif;">App Store</p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;border:1px solid #e5e7eb;border-radius:12px;padding:14px 20px;transition:all .3s;cursor:pointer;" onmouseenter="this.style.backgroundColor='var(--e-global-color-primary)';this.style.color='#fff';this.style.borderColor='var(--e-global-color-primary)'" onmouseleave="this.style.backgroundColor='';this.style.color='';this.style.borderColor='#e5e7eb'">
+      <svg aria-hidden="true" class="e-font-icon-svg e-fab-google-play" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;fill:currentColor;"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"></path></svg>
+      <div>
+        <p style="font-size:12px;font-weight:400;color:inherit;margin:0;font-family:'Poppins',sans-serif;">Disponivel na</p>
+        <p style="font-size:17px;font-weight:600;color:inherit;margin:0;font-family:'Poppins',sans-serif;">Google Play</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOGO CAROUSEL ITEM -->
+  <div class="ds-component-label">Logo Carousel (Client Logos)</div>
+  <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:20px;">
+    <img alt="Brava" src="assets/logos-brava_385958baecc6.webp" style="height:40px;width:auto;filter:grayscale(0);"/>
+    <img alt="SBT" src="assets/logos-sbt_eb5ccda7bab9.webp" style="height:40px;width:auto;"/>
+    <img alt="CVC" src="assets/logos-cvc_8329c2740256.webp" style="height:40px;width:auto;"/>
+    <img alt="Botoclinic" src="assets/logos-botoclinic_5240bfb1f01d.webp" style="height:40px;width:auto;"/>
+    <img alt="Farmais" src="assets/logos-farmais_cf4a0d2deefe.webp" style="height:40px;width:auto;"/>
+    <img alt="OMIE" src="assets/logos-omie_1010fd98c8d6.webp" style="height:40px;width:auto;"/>
+  </div>
+
+</div>
+</section>
+<hr class="ds-divider"/>
+
+
+<!-- ================================================================
+     SECTION 4: LAYOUT & SPACING
+     ================================================================ -->
+<section id="layout">
+<div class="ds-section">
+  <h2 class="ds-section-title">Layout e Espacamento</h2>
+  <p class="ds-section-desc">Containers, grids e padroes de layout extraidos do site de referencia. O sistema usa Elementor Flex Containers com max-width de 1140px.</p>
+
+  <!-- Pattern 1: Hero Split Layout -->
+  <div class="ds-component-label">Padrao 1: Hero Split (Texto + Imagem)</div>
+  <div class="ds-layout-demo">
+    <div style="display:flex;gap:0;min-height:400px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:300px;display:flex;flex-direction:column;justify-content:center;padding:40px 20px;">
+        <div class="ds-layout-placeholder" style="margin-bottom:16px;">H1 - Heading (max-width: 476px)</div>
+        <div class="ds-layout-placeholder" style="margin-bottom:16px;">H2 - Subtitle (max-width: 476px)</div>
+        <div class="ds-layout-placeholder" style="margin-bottom:16px;max-width:200px;">Price Row</div>
+        <div class="ds-layout-placeholder" style="max-width:220px;">CTA Button</div>
+      </div>
+      <div style="flex:1;min-width:300px;display:flex;align-items:center;justify-content:center;padding:20px;">
+        <div class="ds-layout-placeholder" style="width:80%;height:300px;display:flex;align-items:center;justify-content:center;">Platform Image</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#9ca3af;margin-top:12px;font-family:'Poppins',sans-serif;">Container: e-con-boxed / max-width: 1140px / min-height: 890px (desk) / 607px (mob) / margin-top: -90px (overlaps header)</div>
+  </div>
+
+  <!-- Pattern 2: Feature Section (Image + Text alternating) -->
+  <div class="ds-component-label">Padrao 2: Feature Section (Alternating Image + Text)</div>
+  <div class="ds-layout-demo">
+    <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:center;">
+      <div style="flex:1;min-width:280px;">
+        <div class="ds-layout-placeholder" style="height:250px;display:flex;align-items:center;justify-content:center;">Feature Image (600x554)</div>
+      </div>
+      <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;">
+        <div class="ds-layout-placeholder">H3 - Feature Title</div>
+        <div class="ds-layout-placeholder">Body Text - Description</div>
+        <div class="ds-layout-placeholder" style="max-width:180px;">CTA Button</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#9ca3af;margin-top:12px;font-family:'Poppins',sans-serif;">Container: e-con-boxed / e-parent / background alternates between #FFFFFF and #F4F9FE / Image and text swap sides on alternate sections</div>
+  </div>
+
+  <!-- Pattern 3: CTA Full-Width -->
+  <div class="ds-component-label">Padrao 3: CTA Full-Width com Formulario</div>
+  <div class="ds-layout-demo">
+    <div style="background:var(--e-global-color-primary);border-radius:0;padding:50px 20px;text-align:center;">
+      <div class="ds-layout-placeholder" style="background:rgba(255,255,255,.2);color:#fff;margin:0 auto 12px;max-width:400px;">H2 - CTA Title (36px/700)</div>
+      <div class="ds-layout-placeholder" style="background:rgba(255,255,255,.2);color:#fff;margin:0 auto 20px;max-width:500px;">Subtitle (16px/400)</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:900px;margin:0 auto;">
+        <div class="ds-layout-placeholder" style="flex:1;min-width:150px;background:rgba(255,255,255,.3);color:#fff;">Input Field</div>
+        <div class="ds-layout-placeholder" style="flex:1;min-width:150px;background:rgba(255,255,255,.3);color:#fff;">Input Field</div>
+        <div class="ds-layout-placeholder" style="flex:1;min-width:150px;background:rgba(255,255,255,.3);color:#fff;">Input Field</div>
+        <div class="ds-layout-placeholder" style="min-width:140px;background:var(--e-global-color-secondary);color:#fff;">Submit</div>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:12px;font-family:'Poppins',sans-serif;">Disclaimer text</div>
+    </div>
+    <div style="font-size:11px;color:#9ca3af;margin-top:12px;font-family:'Poppins',sans-serif;">Container: e-con-boxed / bg: --e-global-color-primary + bg-apartir-desk pattern / padding: 50px 0 / form fields inline with 25% width each</div>
+  </div>
+
+  <!-- Spacing Reference -->
+  <div class="ds-component-label">Espacamentos de Referencia</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:8px;">
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;font-family:'Poppins',sans-serif;">
+      <div style="font-size:11px;color:#9ca3af;">Content Max-Width</div>
+      <div style="font-size:18px;font-weight:600;color:var(--e-global-color-accent);">1140px</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;font-family:'Poppins',sans-serif;">
+      <div style="font-size:11px;color:#9ca3af;">Container Gap</div>
+      <div style="font-size:18px;font-weight:600;color:var(--e-global-color-accent);">20px</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;font-family:'Poppins',sans-serif;">
+      <div style="font-size:11px;color:#9ca3af;">Section Padding</div>
+      <div style="font-size:18px;font-weight:600;color:var(--e-global-color-accent);">50px top/bottom</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;font-family:'Poppins',sans-serif;">
+      <div style="font-size:11px;color:#9ca3af;">Card Border Radius</div>
+      <div style="font-size:18px;font-weight:600;color:var(--e-global-color-accent);">22px</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;font-family:'Poppins',sans-serif;">
+      <div style="font-size:11px;color:#9ca3af;">Button Border Radius</div>
+      <div style="font-size:18px;font-weight:600;color:var(--e-global-color-accent);">50px</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;font-family:'Poppins',sans-serif;">
+      <div style="font-size:11px;color:#9ca3af;">Form Field Spacing</div>
+      <div style="font-size:18px;font-weight:600;color:var(--e-global-color-accent);">29px gap</div>
+    </div>
+  </div>
+
+</div>
+</section>
+<hr class="ds-divider"/>
+
+
+<!-- ================================================================
+     SECTION 5: MOTION & INTERACTION
+     ================================================================ -->
+<section id="motion">
+<div class="ds-section">
+  <h2 class="ds-section-title">Motion e Interacao</h2>
+  <p class="ds-section-desc">Animacoes de entrada, transicoes de hover, e efeitos visuais presentes no site de referencia. Passe o mouse sobre cada card para visualizar.</p>
+
+  <div class="ds-motion-grid">
+
+    <!-- Slide In From Right -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target anim-slide-right" style="transition:all .3s;">Slide</div>
+      <div class="ds-motion-label">slideInFromRight</div>
+      <div class="ds-motion-detail">transform: translateX(100px) -> 0 / opacity: 0 -> 1 / duration: 0.6s ease-out</div>
+    </div>
+
+    <!-- Slide In From Top -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target anim-slide-top" style="transition:all .3s;">Slide</div>
+      <div class="ds-motion-label">slideInFromTop</div>
+      <div class="ds-motion-detail">transform: translateY(-50px) -> 0 / opacity: 0 -> 1 / duration: 0.5s ease-out</div>
+    </div>
+
+    <!-- Loading Opacity Pulse -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target anim-fade-pulse" style="transition:all .3s;">Pulse</div>
+      <div class="ds-motion-label">loadingOpacityAnimation</div>
+      <div class="ds-motion-detail">opacity: 0.3 -> 1 -> 0.3 / duration: 1.5s ease-in-out infinite</div>
+    </div>
+
+    <!-- Button Hover (Gradient transition) -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target anim-btn-hover" style="background:var(--e-global-color-secondary);border-radius:50px;width:120px;height:50px;font-size:12px;transition:all .3s;">Hover Me</div>
+      <div class="ds-motion-label">Button Hover Gradient</div>
+      <div class="ds-motion-detail">bg: solid -> gradient(340deg, #5fc1f8, #1a73e8) / box-shadow: 0 7px 8px 2px rgba(0,0,0,.07) / transition: all .3s</div>
+    </div>
+
+    <!-- Card Lift on Hover -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target anim-card-lift" style="background:#fff;border:1px solid #e5e7eb;border-radius:22px;box-shadow:0 0 8px 0 rgba(0,0,0,.1);color:var(--e-global-color-accent);transition:all .3s;">Card</div>
+      <div class="ds-motion-label">Card Lift (mlabs-card)</div>
+      <div class="ds-motion-detail">transform: translateY(-4px) / box-shadow: 0 4px 16px rgba(0,0,0,.15) / transition: all .3s</div>
+    </div>
+
+    <!-- Icon Box Hover (bg change) -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target" style="background:transparent;border:1px solid #e5e7eb;border-radius:12px;transition:all .3s;color:var(--e-global-color-accent);" onmouseenter="this.style.backgroundColor='var(--e-global-color-primary)';this.style.color='#fff';this.style.borderColor='var(--e-global-color-primary)'" onmouseleave="this.style.backgroundColor='';this.style.color='var(--e-global-color-accent)';this.style.borderColor='#e5e7eb'">Icon</div>
+      <div class="ds-motion-label">Icon Box Hover</div>
+      <div class="ds-motion-detail">bg: transparent -> --e-global-color-primary / color: accent -> white / transition: all .3s</div>
+    </div>
+
+    <!-- Button Box Shadow -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target" style="background:#fff;border:1px solid #525252;border-radius:50px;width:100px;height:44px;font-size:12px;color:#525252;transition:all .3s;" onmouseenter="this.style.boxShadow='0 0 10px 4px rgba(0,0,0,.13)'" onmouseleave="this.style.boxShadow=''">Entrar</div>
+      <div class="ds-motion-label">Outline Button Shadow</div>
+      <div class="ds-motion-detail">box-shadow: none -> 0 0 10px 4px rgba(0,0,0,.13) / transition: all .3s</div>
+    </div>
+
+    <!-- Swiper Spin -->
+    <div class="ds-motion-card">
+      <div class="ds-motion-target" style="border:3px solid #e5e7eb;border-top-color:var(--e-global-color-secondary);border-radius:50%;animation:swiper-preloader-spin 1s linear infinite;font-size:0;">.</div>
+      <div class="ds-motion-label">swiper-preloader-spin</div>
+      <div class="ds-motion-detail">transform: rotate(360deg) / duration: 1s linear infinite</div>
+    </div>
+
+  </div>
+
+  <!-- Transition specs reference -->
+  <div style="margin-top:40px;">
+    <div class="ds-component-label">Especificacoes de Transicao</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px;font-family:'Poppins',sans-serif;">
+        <div style="font-size:12px;font-weight:500;color:var(--e-global-color-accent);">Global Button</div>
+        <div style="font-size:11px;color:#9ca3af;">transition: all .3s</div>
+      </div>
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px;font-family:'Poppins',sans-serif;">
+        <div style="font-size:12px;font-weight:500;color:var(--e-global-color-accent);">Widget Container</div>
+        <div style="font-size:11px;color:#9ca3af;">transition: background .3s, border .3s, border-radius .3s, box-shadow .3s</div>
+      </div>
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px;font-family:'Poppins',sans-serif;">
+        <div style="font-size:12px;font-weight:500;color:var(--e-global-color-accent);">Carousel</div>
+        <div style="font-size:11px;color:#9ca3af;">speed: 600ms (testimonials) / 2000ms + autoplay 500ms (logos)</div>
+      </div>
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px;font-family:'Poppins',sans-serif;">
+        <div style="font-size:12px;font-weight:500;color:var(--e-global-color-accent);">Tippy Tooltip</div>
+        <div style="font-size:11px;color:#9ca3af;">transition-property: transform, visibility, opacity</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+<hr class="ds-divider"/>
+
+
+<!-- ================================================================
+     SECTION 6: ICONS
+     ================================================================ -->
+<section id="icons">
+<div class="ds-section">
+  <h2 class="ds-section-title">Icones</h2>
+  <p class="ds-section-desc">SVG inline icons e Font Awesome 6 Free utilizados no site de referencia.</p>
+
+  <div class="ds-component-label">SVG Icons (Inline)</div>
+  <div class="ds-icon-grid" style="margin-bottom:32px;">
+
+    <div class="ds-icon-item">
+      <svg aria-hidden="true" class="e-font-icon-svg e-far-check-circle" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"></path></svg>
+      <span>check-circle</span>
+    </div>
+
+    <div class="ds-icon-item">
+      <svg aria-hidden="true" class="e-font-icon-svg e-fab-apple" viewbox="0 0 384 512" xmlns="http://www.w3.org/2000/svg"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"></path></svg>
+      <span>apple</span>
+    </div>
+
+    <div class="ds-icon-item">
+      <svg aria-hidden="true" class="e-font-icon-svg e-fab-google-play" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"></path></svg>
+      <span>google-play</span>
+    </div>
+
+  </div>
+
+  <div class="ds-component-label">Font Awesome 6 Free (via @font-face)</div>
+  <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px;">
+
+    <div style="display:flex;align-items:center;gap:8px;font-family:'Poppins',sans-serif;">
+      <i class="fas fa-angle-down" style="font-family:'Font Awesome 6 Free';font-weight:900;font-style:normal;font-size:18px;color:var(--e-global-color-accent);"></i>
+      <span style="font-size:12px;color:#9ca3af;">fa-angle-down (nav dropdown)</span>
+    </div>
+
+  </div>
+
+  <div class="ds-component-label">Icon Sizes (Reference)</div>
+  <div style="display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      <svg aria-hidden="true" class="e-font-icon-svg e-far-check-circle" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;fill:var(--e-global-color-secondary);"><path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"></path></svg>
+      <div style="font-size:10px;color:#9ca3af;margin-top:4px;">16px</div>
+    </div>
+    <div style="text-align:center;">
+      <svg aria-hidden="true" class="e-font-icon-svg e-far-check-circle" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:24px;height:24px;fill:var(--e-global-color-secondary);"><path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"></path></svg>
+      <div style="font-size:10px;color:#9ca3af;margin-top:4px;">24px</div>
+    </div>
+    <div style="text-align:center;">
+      <svg aria-hidden="true" class="e-font-icon-svg e-fab-apple" viewbox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;fill:var(--e-global-color-accent);"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"></path></svg>
+      <div style="font-size:10px;color:#9ca3af;margin-top:4px;">28px</div>
+    </div>
+    <div style="text-align:center;">
+      <svg aria-hidden="true" class="e-font-icon-svg e-fab-google-play" viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;fill:var(--e-global-color-primary);"><path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"></path></svg>
+      <div style="font-size:10px;color:#9ca3af;margin-top:4px;">36px</div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ========================================
+     FOOTER
+     ======================================== -->
+<div style="background:#f4f9fe;padding:40px 20px;text-align:center;font-family:'Poppins',sans-serif;margin-top:40px;">
+  <img alt="mLabs" src="assets/logo-mlabs-150x41_fdff18a4b0c1.webp" style="height:32px;width:auto;margin-bottom:12px;"/>
+  <p style="font-size:13px;color:#9ca3af;margin:0;">mLabs Design System -- Extraido de mlabs.com.br</p>
+  <p style="font-size:11px;color:#9ca3af;margin:4px 0 0;">Poppins / Elementor / Font Awesome 6 Free</p>
+</div>
+
+</body>
+</html>
