@@ -1,47 +1,17 @@
-"use client";
-
-import { useState } from "react";
-import { toast } from "sonner";
-import { Loader2, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { apiFetch } from "@/lib/api";
+import { Mail } from "lucide-react";
 
 export function ManageSubscription() {
-  const [loading, setLoading] = useState(false);
-
-  async function handlePortal() {
-    try {
-      setLoading(true);
-      const res = await apiFetch("/api/billing/portal", { method: "POST" });
-
-      if (!res.ok) {
-        throw new Error("Erro ao abrir portal");
-      }
-
-      const { url } = await res.json();
-      if (url) {
-        window.location.href = url;
-      }
-    } catch {
-      toast.error("Erro ao abrir portal de cobranca.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <Button
-      variant="outline"
-      onClick={handlePortal}
-      disabled={loading}
-      className="gap-2"
-    >
-      {loading ? (
-        <Loader2 className="size-4 animate-spin" />
-      ) : (
-        <ExternalLink className="size-4" />
-      )}
-      Gerenciar Assinatura
-    </Button>
+    <div className="flex items-start gap-3 rounded-lg border border-muted bg-muted/30 p-4 text-sm">
+      <Mail className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+      <div className="space-y-1">
+        <p className="font-medium">Gerenciar assinatura</p>
+        <p className="text-muted-foreground">
+          O cancelamento e alteracao da assinatura sao feitos pelo email de
+          confirmacao da Kiwify. Verifique sua caixa de entrada ou acesse sua
+          area do cliente Kiwify.
+        </p>
+      </div>
+    </div>
   );
 }

@@ -1,19 +1,22 @@
 import { Router, Request, Response } from "express";
-import express from "express";
 import { AuthRequest, authMiddleware } from "../middleware/auth";
 import { createAdminClient } from "../lib/supabase";
-import { getPlan } from "../lib/stripe/products";
-import { createSubscriptionCheckout } from "../lib/stripe/checkout";
-import { constructEvent } from "../lib/stripe/webhook";
-import { getStripe } from "../lib/stripe/client";
+import {
+  getPlan,
+  getKiwifyCheckoutUrl,
+  resolvePlanFromPayload,
+} from "../lib/kiwify/products";
+import {
+  verifyKiwifySignature,
+  KiwifyWebhookPayload,
+} from "../lib/kiwify/webhook";
 
 const router = Router();
 
-// POST /checkout - Criar sessao de checkout Stripe para assinatura
+// POST /checkout - Retorna URL de checkout Kiwify com userId em tracking param
 router.post("/checkout", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const supabase = req.supabase!;
 
     const { planId } = req.body as { planId: string };
 
@@ -28,68 +31,35 @@ router.post("/checkout", authMiddleware, async (req: AuthRequest, res: Response)
       return;
     }
 
-    // Verificar se ja tem assinatura ativa
+    const checkoutUrl = getKiwifyCheckoutUrl(planId);
+    if (!checkoutUrl) {
+      console.error(`[billing/checkout] URL Kiwify nao configurada para planId=${planId}`);
+      res.status(500).json({ error: "Checkout indisponivel para este plano." });
+      return;
+    }
+
+    // Verifica se ja tem assinatura ativa
     const admin = createAdminClient();
     const { data: existingSub } = await admin
       .from("subscriptions")
       .select("id, status")
       .eq("user_id", userId)
       .in("status", ["active", "past_due"])
-      .single();
+      .maybeSingle();
 
     if (existingSub) {
-      res.status(400).json({ error: "Voce ja possui uma assinatura ativa. Use o portal para gerenciar." });
+      res.status(400).json({ error: "Voce ja possui uma assinatura ativa." });
       return;
     }
 
-    // Buscar stripe customer existente
-    const { data: stripeCustomer } = await supabase
-      .from("stripe_customers")
-      .select("stripe_customer_id")
-      .eq("user_id", userId)
-      .single<{ stripe_customer_id: string }>();
+    // Anexa userId como tracking parameter (s1) que a Kiwify ecoa no webhook
+    const separator = checkoutUrl.includes("?") ? "&" : "?";
+    const url = `${checkoutUrl}${separator}s1=${encodeURIComponent(userId)}`;
 
-    const session = await createSubscriptionCheckout({
-      userId,
-      planId,
-      customerEmail: req.user!.email!,
-      stripeCustomerId: stripeCustomer?.stripe_customer_id,
-    });
-
-    res.json({ url: session.url });
+    res.json({ url });
   } catch (error) {
     console.error("[billing/checkout] Erro:", error);
-    res.status(500).json({ error: "Erro ao criar sessao de pagamento." });
-  }
-});
-
-// POST /portal - Abrir portal de gerenciamento Stripe
-router.post("/portal", authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.id;
-    const supabase = req.supabase!;
-    const stripe = getStripe();
-
-    const { data: stripeCustomer } = await supabase
-      .from("stripe_customers")
-      .select("stripe_customer_id")
-      .eq("user_id", userId)
-      .single<{ stripe_customer_id: string }>();
-
-    if (!stripeCustomer) {
-      res.status(404).json({ error: "Nenhuma conta de cobranca encontrada." });
-      return;
-    }
-
-    const portalSession = await stripe.billingPortal.sessions.create({
-      customer: stripeCustomer.stripe_customer_id,
-      return_url: `${process.env.FRONTEND_URL}/settings/billing`,
-    });
-
-    res.json({ url: portalSession.url });
-  } catch (error) {
-    console.error("[billing/portal] Erro:", error);
-    res.status(500).json({ error: "Erro ao abrir portal de cobranca." });
+    res.status(500).json({ error: "Erro ao gerar link de pagamento." });
   }
 });
 
@@ -103,7 +73,7 @@ router.get("/subscription", authMiddleware, async (req: AuthRequest, res: Respon
       .from("subscriptions")
       .select("*")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     res.json({ subscription: subscription ?? null });
   } catch (error) {
@@ -112,217 +82,133 @@ router.get("/subscription", authMiddleware, async (req: AuthRequest, res: Respon
   }
 });
 
-// POST /webhook - Webhook do Stripe (NO auth, raw body)
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  async (req: Request, res: Response) => {
-    const body = req.body;
-    const signature = req.headers["stripe-signature"] as string;
+// POST /webhook - Webhook da Kiwify (sem auth; valida signature na query string)
+router.post("/webhook", async (req: Request, res: Response) => {
+  if (!verifyKiwifySignature(req.query.signature)) {
+    console.warn("[billing/webhook] signature invalida");
+    res.status(401).json({ error: "Assinatura invalida." });
+    return;
+  }
 
-    if (!signature) {
-      res.status(400).json({ error: "Assinatura do Stripe ausente." });
-      return;
-    }
+  const payload = req.body as KiwifyWebhookPayload;
+  const event = payload.webhook_event_type;
 
-    let event: any;
+  // Log completo do payload ate estabilizarmos o mapeamento de plano
+  console.log("[kiwify/webhook] payload:", JSON.stringify(payload, null, 2));
 
-    try {
-      event = constructEvent(body, signature);
-    } catch (error) {
-      console.error("[billing/webhook] Erro ao verificar assinatura:", error);
-      res.status(400).json({ error: "Assinatura do webhook invalida." });
-      return;
-    }
+  if (!event) {
+    res.status(400).json({ error: "Evento ausente." });
+    return;
+  }
 
-    const admin = createAdminClient();
+  const admin = createAdminClient();
 
-    try {
-      switch (event.type) {
-        // Checkout concluido — salvar customer e criar subscription record
-        case "checkout.session.completed": {
-          const session = event.data.object as any;
-          const userId = session.metadata?.userId;
-
-          if (!userId) break;
-
-          // Upsert stripe customer
-          if (session.customer) {
-            const stripeCustomerId =
-              typeof session.customer === "string"
-                ? session.customer
-                : session.customer.id;
-
-            await admin
-              .from("stripe_customers")
-              .upsert(
-                { user_id: userId, stripe_customer_id: stripeCustomerId } as never,
-                { onConflict: "user_id" }
-              );
-          }
+  try {
+    switch (event) {
+      case "order_approved":
+      case "subscription_renewed": {
+        const userId = await resolveUserId(admin, payload);
+        if (!userId) {
+          console.error(`[webhook] userId nao resolvido para evento=${event}`);
           break;
         }
 
-        // Assinatura criada ou atualizada
-        case "customer.subscription.created":
-        case "customer.subscription.updated": {
-          const subscription = event.data.object as any;
-          const metadata = subscription.metadata ?? {};
-          let userId = metadata.userId;
-
-          // Buscar userId pelo stripe_customer_id se nao tiver no metadata
-          if (!userId && subscription.customer) {
-            const customerId =
-              typeof subscription.customer === "string"
-                ? subscription.customer
-                : subscription.customer.id;
-
-            const { data: sc } = await admin
-              .from("stripe_customers")
-              .select("user_id")
-              .eq("stripe_customer_id", customerId)
-              .single<{ user_id: string }>();
-
-            userId = sc?.user_id;
-          }
-
-          if (!userId) {
-            console.error("[webhook] userId nao encontrado para subscription:", subscription.id);
-            break;
-          }
-
-          const planId = metadata.planId || "starter";
-          const status = subscription.status as string;
-
-          // Mapear status do Stripe para nosso enum
-          const statusMap: Record<string, string> = {
-            active: "active",
-            canceled: "canceled",
-            past_due: "past_due",
-            unpaid: "unpaid",
-            incomplete: "incomplete",
-            incomplete_expired: "canceled",
-            trialing: "active",
-            paused: "canceled",
-          };
-
-          await admin
-            .from("subscriptions")
-            .upsert(
-              {
-                user_id: userId,
-                stripe_subscription_id: subscription.id,
-                stripe_price_id: subscription.items?.data?.[0]?.price?.id || null,
-                plan_id: planId,
-                status: statusMap[status] || "incomplete",
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                cancel_at_period_end: subscription.cancel_at_period_end || false,
-                updated_at: new Date().toISOString(),
-              } as never,
-              { onConflict: "user_id" }
-            );
-
+        const plan = resolvePlanFromPayload(payload);
+        if (!plan) {
+          console.error(
+            `[webhook] plano nao resolvido. plan.id=${payload.Subscription?.plan?.id} name=${payload.Subscription?.plan?.name} product=${payload.Product?.product_name}`
+          );
           break;
         }
 
-        // Assinatura deletada/cancelada definitivamente
-        case "customer.subscription.deleted": {
-          const subscription = event.data.object as any;
+        const kiwifyProductId = payload.Product?.product_id;
+        const orderId = payload.order_id || payload.Subscription?.id || "";
+        const periodStart = payload.Subscription?.start_date
+          ? new Date(payload.Subscription.start_date).toISOString()
+          : new Date().toISOString();
+        const periodEnd = payload.Subscription?.next_payment
+          ? new Date(payload.Subscription.next_payment).toISOString()
+          : null;
 
-          await admin
-            .from("subscriptions")
-            .update({
-              status: "canceled",
+        await admin
+          .from("subscriptions")
+          .upsert(
+            {
+              user_id: userId,
+              kiwify_order_id: orderId,
+              kiwify_product_id: kiwifyProductId || null,
+              plan_id: plan.id,
+              status: "active",
+              current_period_start: periodStart,
+              current_period_end: periodEnd,
               cancel_at_period_end: false,
               updated_at: new Date().toISOString(),
-            } as never)
-            .eq("stripe_subscription_id", subscription.id);
+            } as never,
+            { onConflict: "user_id" }
+          );
 
-          break;
-        }
-
-        // Invoice paga — renovacao mensal: adicionar creditos
-        case "invoice.paid": {
-          const invoice = event.data.object as any;
-
-          // Ignorar invoices que nao sao de subscription
-          if (!invoice.subscription) break;
-
-          const customerId =
-            typeof invoice.customer === "string"
-              ? invoice.customer
-              : invoice.customer?.id;
-
-          if (!customerId) break;
-
-          const { data: sc } = await admin
-            .from("stripe_customers")
-            .select("user_id")
-            .eq("stripe_customer_id", customerId)
-            .single<{ user_id: string }>();
-
-          if (!sc) break;
-
-          const userId = sc.user_id;
-
-          // Buscar subscription para saber o plano
-          const { data: sub } = await admin
-            .from("subscriptions")
-            .select("plan_id")
-            .eq("user_id", userId)
-            .single<{ plan_id: string }>();
-
-          const plan = getPlan(sub?.plan_id || "starter");
-          const creditsToAdd = plan?.credits || 15;
-
-          // Buscar saldo atual
-          const { data: profile } = await admin
-            .from("profiles")
-            .select("credits")
-            .eq("id", userId)
-            .single<{ credits: number }>();
-
-          if (!profile) break;
-
-          const newBalance = profile.credits + creditsToAdd;
-
-          // Atualizar creditos
-          await admin
-            .from("profiles")
-            .update({ credits: newBalance, updated_at: new Date().toISOString() } as never)
-            .eq("id", userId);
-
-          // Registrar transacao
-          await admin.from("credit_transactions").insert({
-            user_id: userId,
-            type: "purchase",
-            amount: creditsToAdd,
-            balance_after: newBalance,
-            description: `Renovacao mensal - Plano ${plan?.name || "Starter"} (${creditsToAdd} creditos)`,
-            stripe_payment_intent_id: invoice.payment_intent || null,
-          } as never);
-
-          console.log(`[webhook] Creditos renovados: +${creditsToAdd} para user ${userId}`);
-          break;
-        }
-
-        // Pagamento falhou
-        case "invoice.payment_failed": {
-          const invoice = event.data.object as any;
-          console.warn("[webhook] Pagamento falhou para invoice:", invoice.id);
-          break;
-        }
+        await addCredits(admin, userId, plan.credits, plan.name, orderId);
+        console.log(`[webhook] ${event}: +${plan.credits} creditos para ${userId}`);
+        break;
       }
-    } catch (error) {
-      console.error("[billing/webhook] Erro ao processar evento:", error);
-      res.status(500).json({ error: "Erro interno ao processar webhook." });
-      return;
-    }
 
-    res.json({ received: true });
+      case "subscription_canceled": {
+        const userId = await resolveUserId(admin, payload);
+        if (!userId) break;
+
+        await admin
+          .from("subscriptions")
+          .update({
+            status: "canceled",
+            cancel_at_period_end: false,
+            updated_at: new Date().toISOString(),
+          } as never)
+          .eq("user_id", userId);
+
+        break;
+      }
+
+      case "subscription_late": {
+        const userId = await resolveUserId(admin, payload);
+        if (!userId) break;
+
+        await admin
+          .from("subscriptions")
+          .update({
+            status: "past_due",
+            updated_at: new Date().toISOString(),
+          } as never)
+          .eq("user_id", userId);
+
+        break;
+      }
+
+      case "order_refunded": {
+        const userId = await resolveUserId(admin, payload);
+        if (!userId) break;
+
+        await admin
+          .from("subscriptions")
+          .update({
+            status: "unpaid",
+            updated_at: new Date().toISOString(),
+          } as never)
+          .eq("user_id", userId);
+
+        break;
+      }
+
+      default:
+        console.log(`[webhook] evento ignorado: ${event}`);
+    }
+  } catch (error) {
+    console.error("[billing/webhook] Erro ao processar evento:", error);
+    res.status(500).json({ error: "Erro interno ao processar webhook." });
+    return;
   }
-);
+
+  res.json({ received: true });
+});
 
 // GET /credits - Buscar creditos e transacoes (auth required)
 router.get("/credits", authMiddleware, async (req: AuthRequest, res: Response) => {
@@ -365,3 +251,62 @@ router.get("/credits", authMiddleware, async (req: AuthRequest, res: Response) =
 });
 
 export default router;
+
+// ==========================================
+// Helpers
+// ==========================================
+
+async function resolveUserId(
+  admin: ReturnType<typeof createAdminClient>,
+  payload: KiwifyWebhookPayload
+): Promise<string | null> {
+  const trackedUserId = payload.TrackingParameters?.s1;
+  if (trackedUserId && isUuid(trackedUserId)) return trackedUserId;
+
+  const email = payload.Customer?.email;
+  if (!email) return null;
+
+  const { data } = await admin
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle<{ id: string }>();
+
+  return data?.id ?? null;
+}
+
+async function addCredits(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  creditsToAdd: number,
+  planName: string,
+  kiwifyOrderId: string
+) {
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("credits")
+    .eq("id", userId)
+    .single<{ credits: number }>();
+
+  if (!profile) return;
+
+  const newBalance = profile.credits + creditsToAdd;
+
+  await admin
+    .from("profiles")
+    .update({ credits: newBalance, updated_at: new Date().toISOString() } as never)
+    .eq("id", userId);
+
+  await admin.from("credit_transactions").insert({
+    user_id: userId,
+    type: "purchase",
+    amount: creditsToAdd,
+    balance_after: newBalance,
+    description: `Plano ${planName} (${creditsToAdd} creditos)`,
+    kiwify_order_id: kiwifyOrderId || null,
+  } as never);
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}

@@ -26,17 +26,7 @@ app.use(
   })
 );
 
-// JSON body parser para todas as rotas EXCETO o webhook do Stripe
-// O webhook do billing precisa de raw body, entao aplicamos json parsing
-// apenas nas rotas que nao sao /api/billing/webhook
-app.use((req, res, next) => {
-  if (req.path === "/api/billing/webhook") {
-    // Nao parsear JSON aqui - o handler do webhook usa express.raw()
-    next();
-  } else {
-    express.json({ limit: "10mb" })(req, res, next);
-  }
-});
+app.use(express.json({ limit: "10mb" }));
 
 // Simple rate limiter
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();

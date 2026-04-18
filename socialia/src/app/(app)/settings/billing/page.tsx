@@ -10,7 +10,7 @@ import {
 import { SubscriptionPlans } from "@/components/billing/credit-packs";
 import { TransactionHistory } from "@/components/billing/transaction-history";
 import { ManageSubscription } from "@/components/billing/manage-subscription";
-import { getPlan } from "@/lib/stripe/products";
+import { getPlan } from "@/lib/plans";
 
 export default async function BillingPage({
   searchParams,
@@ -37,7 +37,12 @@ export default async function BillingPage({
     .from("subscriptions")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle<{
+      plan_id: string;
+      status: string;
+      cancel_at_period_end: boolean;
+      current_period_end: string | null;
+    }>();
 
   const credits = profile?.credits ?? 0;
   const params = await searchParams;
@@ -94,7 +99,7 @@ export default async function BillingPage({
                 <p className="text-sm text-muted-foreground">
                   {currentPlan.credits} posts/mes &middot; {currentPlan.priceDisplay}/mes
                 </p>
-                {subscription.cancel_at_period_end && (
+                {subscription?.cancel_at_period_end && subscription.current_period_end && (
                   <p className="mt-1 text-xs text-yellow-600">
                     Cancela ao fim do periodo em{" "}
                     {new Date(subscription.current_period_end).toLocaleDateString("pt-BR")}

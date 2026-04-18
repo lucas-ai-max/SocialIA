@@ -13,7 +13,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SUBSCRIPTION_PLANS } from "@/lib/stripe/products";
+import { SUBSCRIPTION_PLANS } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionPlansProps {

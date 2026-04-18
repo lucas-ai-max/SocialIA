@@ -12,6 +12,12 @@ export type GenerationMode = "auto" | "prompt";
 export type ImageFormat = "square" | "portrait";
 export type BrandVoice = "formal" | "casual" | "playful" | "professional";
 export type VisualStyle = "minimalist" | "vibrant" | "dark" | "clean";
+export type SubscriptionStatus =
+  | "active"
+  | "canceled"
+  | "past_due"
+  | "unpaid"
+  | "incomplete";
 
 export interface Database {
   public: {
@@ -214,7 +220,7 @@ export interface Database {
           balance_after: number;
           description: string | null;
           post_id: string | null;
-          stripe_payment_intent_id: string | null;
+          kiwify_order_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -225,21 +231,34 @@ export interface Database {
           balance_after: number;
           description?: string | null;
           post_id?: string | null;
-          stripe_payment_intent_id?: string | null;
+          kiwify_order_id?: string | null;
         };
         Update: {};
       };
-      stripe_customers: {
+      subscriptions: {
         Row: {
           id: string;
           user_id: string;
-          stripe_customer_id: string;
+          kiwify_order_id: string;
+          kiwify_product_id: string | null;
+          plan_id: string;
+          status: SubscriptionStatus;
+          current_period_start: string | null;
+          current_period_end: string | null;
+          cancel_at_period_end: boolean;
           created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
-          stripe_customer_id: string;
+          kiwify_order_id: string;
+          kiwify_product_id?: string | null;
+          plan_id: string;
+          status?: SubscriptionStatus;
+          current_period_start?: string | null;
+          current_period_end?: string | null;
+          cancel_at_period_end?: boolean;
         };
         Update: {};
       };
