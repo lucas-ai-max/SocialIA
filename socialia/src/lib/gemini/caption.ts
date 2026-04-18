@@ -1,29 +1,44 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
+const OPENAI_MODEL = "gpt-4.1-mini";
 
-function getGenAI() {
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-}
+async function chat(prompt: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY!;
 
-export async function generateCaption(prompt: string): Promise<string> {
-  const genAI = getGenAI();
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const res = await fetch(OPENAI_CHAT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  if (!res.ok) {
+    const error = await res.text();
+    console.error("OpenAI Chat API error:", error);
+    throw new Error(`Falha na geracao de texto: ${res.status}`);
+  }
+
+  const data = await res.json();
+  const text = data?.choices?.[0]?.message?.content;
 
   if (!text) {
-    throw new Error("Nenhuma legenda gerada pelo Gemini");
+    console.error("OpenAI sem resposta:", JSON.stringify(data).slice(0, 500));
+    throw new Error("Nenhum texto gerado pela OpenAI");
   }
 
   return text.trim();
 }
 
-export async function generateHashtags(prompt: string): Promise<string[]> {
-  const genAI = getGenAI();
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+export async function generateCaption(prompt: string): Promise<string> {
+  return await chat(prompt);
+}
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+export async function generateHashtags(prompt: string): Promise<string[]> {
+  const text = await chat(prompt).catch(() => "");
 
   if (!text) return [];
 
@@ -35,15 +50,6 @@ export async function generateHashtags(prompt: string): Promise<string[]> {
 }
 
 export async function generateIdea(prompt: string): Promise<string> {
-  const genAI = getGenAI();
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-
-  if (!text) {
-    throw new Error("Nenhuma ideia gerada pelo Gemini");
-  }
-
-  return text.trim().replace(/^["']|["']$/g, "");
+  const text = await chat(prompt);
+  return text.replace(/^["']|["']$/g, "");
 }

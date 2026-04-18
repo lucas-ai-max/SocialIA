@@ -9,17 +9,25 @@ export function buildImagePrompt(params: {
 }): string {
   const topic = params.userPrompt || `conteudo para o nicho de ${params.niche}`;
 
-  const headlineText = params.headline
-    ? `Inclua o texto "${params.headline}" como headline principal em destaque.`
-    : "Inclua uma headline curta e impactante em destaque na imagem.";
+  const brandColors = params.colorPalette?.length ? params.colorPalette : null;
+  const primaryColor = brandColors?.[0] || null;
+  const accentColor = brandColors?.[1] || brandColors?.[0] || null;
 
-  const subheadlineText = params.subheadline
-    ? `Inclua o texto "${params.subheadline}" como subheadline complementar.`
+  const colorNote = brandColors
+    ? `PALETA DE CORES DA MARCA (usar em toda a imagem e tipografia): ${brandColors.join(", ")}.`
     : "";
 
-  const colorNote = params.colorPalette?.length
-    ? `Use estas cores predominantes: ${params.colorPalette.join(", ")}.`
-    : "";
+  const textColorGuide = brandColors
+    ? `CORES DO TEXTO — USE A PALETA DA MARCA (PROIBIDO texto 100% branco puro):
+- HEADLINE: use a cor ${primaryColor} (cor primaria da marca) como COR PRINCIPAL da headline.
+- SUBHEADLINE: use ${accentColor} (cor acento) ou versao clara derivada da paleta.
+- Palavras-chave da headline podem ter destaque em ${accentColor} — hierarquia visual.
+- NAO use branco puro (#FFFFFF) — use tons da paleta ${brandColors.join(" / ")}.
+- O texto faz parte do BRANDING VISUAL, integrado a paleta, nao apenas sobreposto.`
+    : `CORES DO TEXTO (escolha tom complementar do ambiente — NAO use branco puro):
+- Extraia uma cor da paleta da propria cena (dourado, azul do ceu, ambar, etc.)
+- Headline em cor vibrante e contrastante (nunca branco 100%)
+- Subheadline em versao mais clara/dessaturada`;
 
   const styleMap: Record<string, string> = {
     minimalist:
@@ -33,42 +41,64 @@ export function buildImagePrompt(params: {
 
   const styleDesc = styleMap[params.visualStyle] || styleMap.vibrant;
 
-  return `Crie uma imagem de POST para Instagram no formato 1080x1350px (vertical 4:5).
+  const hasHeadline = !!params.headline;
+  const hasSubheadline = !!params.subheadline;
 
-TEMA: ${topic}
+  const textBlock = hasHeadline
+    ? `TEXTO A RENDERIZAR NA IMAGEM (em portugues do Brasil, letra por letra, SEM aspas, SEM erros):
 
-ESTILO VISUAL OBRIGATORIO:
+HEADLINE (CAIXA ALTA, grande):
+${params.headline}
+
+${hasSubheadline ? `SUBHEADLINE (caixa normal, menor):\n${params.subheadline}` : "NAO inclua subheadline — apenas a headline."}
+
+REGRAS CRITICAS DO TEXTO (NAO VIOLAR):
+- NAO inclua aspas (" ' « » ‟) ou pontuacao extra ao redor do texto
+- Renderize EXATAMENTE o texto acima, letra por letra, incluindo acentos
+- NAO altere, traduza, abrevie, ou invente letras
+- Preserve acentos portugueses (a, e, i, o, u, c)
+- Se uma palavra parecer estranha, MANTENHA o texto acima (ja esta correto)
+- PREFIRA menos texto do que texto com erros`
+    : `TEXTO: NAO inclua texto na imagem.`;
+
+  return `Crie uma imagem de POST para Instagram (formato vertical 4:5, 1080x1350px).
+
+${textBlock}
+
+TIPOGRAFIA (seguir rigorosamente):
+- Fonte sans-serif moderna, limpa, muito legivel (ex: Inter, Montserrat, Helvetica Neue)
+- Headline em CAIXA ALTA, peso Bold ou Black
+- Subheadline em peso Regular ou Medium, tamanho cerca de 40% da headline
+- Alinhamento CENTRALIZADO
+- Sombra sutil escura atras do texto para legibilidade
+- Kerning perfeito, NENHUMA letra colidindo com outra
+- Margem de 10% de cada lado — texto NAO pode ultrapassar as bordas
+
+${textColorGuide}
+- Texto deve ser parte do branding, nao colado em branco padrao
+- IMPORTANTE: rejeite branco puro como cor principal do texto
+
+TEMA DA CENA: ${topic}
+
+ESTILO VISUAL:
 - ${styleDesc}
-- FOTOGRAFIA REALISTA de alta qualidade, como uma foto profissional real
-- Pessoas reais, ambientes reais, objetos reais - NADA de ilustracao, cartoon ou arte digital
-- Iluminacao natural ou de estudio profissional, com profundidade de campo cinematografica
-- Textura e detalhes fotograficos: poros da pele, reflexos nos olhos, tecidos reais
-- Paleta com tons terrosos/quentes (ocre, dourado, marrom) OU tons frios (azulados, cinzentos) dependendo da emocao
-- Saturacao baixa a moderada, como fotografia editorial de revista
+- FOTOGRAFIA REALISTA de alta qualidade, foto profissional de revista
+- Pessoas reais, ambientes reais, objetos reais — SEM ilustracao, cartoon ou 3D
+- Iluminacao natural ou de estudio, profundidade de campo cinematografica
+- Textura fotografica: poros, reflexos, tecidos reais
 ${colorNote}
 
-TIPOGRAFIA NA IMAGEM:
-- ${headlineText}
-${subheadlineText}
-- Fonte sem serifa, legivel, peso medio a negrito
-- Titulo em caixa alta ou com enfase em palavras-chave por cor ou peso
-- Texto sobreposto na foto com boa legibilidade (usar sombra sutil ou area de respiro)
-- Diagramacao limpa, alinhamento central ou a esquerda
-
 COMPOSICAO:
-- Composicao simetrica e centralizada
-- Sujeito principal ao centro ou em proporcoes equilibradas
-- Respiro visual adequado para o texto sobreposto
-- Foco na expressao corporal e gestual das pessoas
-- Narrativa clara e emocionalmente acessivel
+- Texto NA METADE SUPERIOR da imagem (centralizado)
+- Sujeito principal no centro ou parte inferior
+- Regra dos tercos, respiro visual para o texto
 
-REGRAS:
-- Formato VERTICAL 1080x1350px
-- FOTORREALISMO OBRIGATORIO - deve parecer uma foto real tirada por fotografo profissional
-- NAO gere ilustracoes, arte digital, cartoon, 3D ou qualquer estilo nao-fotografico
-- A imagem deve parecer um post real e profissional de Instagram
-- O texto deve ser LEGIVEL e integrado ao design com boa sobreposicao
-- NAO use mockups de celular`;
+REGRAS FINAIS:
+- Formato VERTICAL 1080x1350px (4:5)
+- FOTORREALISMO OBRIGATORIO - deve parecer foto real de fotografo profissional
+- Texto com ortografia 100% correta em portugues brasileiro
+- Texto DEVE caber dentro da imagem (nao cortar nas bordas)
+- NAO use mockups de celular, frames ou bordas`;
 }
 
 export function buildCaptionPrompt(params: {
@@ -134,23 +164,34 @@ export function buildHeadlinePrompt(params: {
 }): string {
   const topic = params.userPrompt || `conteudo para o nicho de ${params.niche}`;
 
-  return `Voce e um copywriter especializado em headlines para posts de Instagram no estilo editorial.
+  return `Voce e um copywriter brasileiro nativo, especializado em headlines para posts de Instagram no estilo editorial. Escreva SEMPRE em portugues brasileiro PERFEITO, com ortografia impecavel.
 
 TEMA: ${topic}
 NICHO: ${params.niche}
 PUBLICO: ${params.targetAudience}
 
 Crie:
-1. HEADLINE: frase curta de impacto simbolico com leveza (maximo 8 palavras, em caixa alta)
-2. SUBHEADLINE: reflexao complementar ou provocacao estrategica (maximo 15 palavras)
+1. HEADLINE: frase curta de impacto simbolico (maximo 6 palavras, em caixa alta)
+2. SUBHEADLINE: reflexao complementar (maximo 12 palavras)
 
-A headline deve ser provocativa, direta e despertar curiosidade.
-A subheadline deve complementar com insight ou reflexao.
+REGRAS DE QUALIDADE (CRITICAS):
+- Use APENAS palavras reais do dicionario portugues brasileiro
+- Ortografia PERFEITA: NAO invente palavras, NAO junte palavras erradas, NAO troque letras
+- Exemplos de ERROS proibidos: "serenridade" (errado, o certo e "serenidade"), "acoences" (nao existe), "vredade" (o certo e "verdade"), "alinam" (o certo e "alinham")
+- Revise mentalmente cada palavra antes de escrever — se tem duvida sobre uma palavra, escolha uma mais simples
+- Prefira palavras comuns e bem conhecidas a palavras sofisticadas com risco de erro
+- Use acentuacao correta: cafe, voce, tambem, nao, nao, coracao, acoes, questao
+- Evite palavras com letras mudas ou complexas que voce nao tenha certeza da grafia
 
-Responda EXATAMENTE neste formato JSON:
+ESTILO:
+- Headline provocativa, direta, desperta curiosidade
+- Subheadline complementa com insight ou reflexao
+- Tom editorial, estrategico
+
+Responda EXATAMENTE neste formato JSON (uma linha):
 {"headline": "TEXTO DA HEADLINE", "subheadline": "texto da subheadline"}
 
-Responda APENAS com o JSON, sem explicacoes.`;
+NAO inclua blocos de codigo (\`\`\`json). Responda APENAS o JSON puro.`;
 }
 
 export function buildHashtagsPrompt(params: {

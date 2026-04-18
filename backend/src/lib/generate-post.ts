@@ -92,16 +92,6 @@ export async function generateFullPost(params: {
   }
 
   // 5. Generate image
-  const imagePrompt = buildImagePrompt({
-    userPrompt: idea,
-    niche: bp.niche,
-    visualStyle: bp.visual_style,
-    colorPalette: bp.color_palette ?? undefined,
-    imageFormat: params.imageFormat,
-    headline,
-    subheadline,
-  });
-
   let referenceImages = params.referenceImages;
 
   // Include profile photo if requested
@@ -130,13 +120,25 @@ export async function generateFullPost(params: {
     }
   }
 
+  // Regra: com imagem de referencia -> so headline; sem referencia -> headline + subheadline
+  const hasReference = (referenceImages?.length ?? 0) > 0;
+  const imagePrompt = buildImagePrompt({
+    userPrompt: idea,
+    niche: bp.niche,
+    visualStyle: bp.visual_style,
+    colorPalette: bp.color_palette ?? undefined,
+    imageFormat: params.imageFormat,
+    headline,
+    subheadline: hasReference ? undefined : subheadline,
+  });
+
   let base64: string;
   let mimeType: string;
   try {
     const imageResult = await generateImage({
       prompt:
         imagePrompt +
-        (params.includeProfilePhoto
+        (hasReference
           ? "\nInclua uma pessoa com aparencia semelhante a foto de referencia como protagonista da cena."
           : ""),
       imageFormat: params.imageFormat,
