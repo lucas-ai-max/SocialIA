@@ -1,93 +1,93 @@
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent";
+const REPLICATE_API = "https://api.replicate.com/v1";
+const MODEL = "google/nano-banana-pro";
+const MAX_WAIT_MS = 120_000;
+const POLL_INTERVAL_MS = 2_000;
 
 function aspectRatioFor(format: "square" | "portrait"): string {
   return format === "portrait" ? "3:4" : "1:1";
 }
+
+type Prediction = {
+  id: string;
+  status: "starting" | "processing" | "succeeded" | "failed" | "canceled";
+  output?: string | string[] | null;
+  error?: string | null;
+  urls: { get: string; cancel: string };
+};
 
 export async function generateImage(params: {
   prompt: string;
   imageFormat: "square" | "portrait";
   referenceImages?: { base64: string; mimeType: string }[];
 }): Promise<{ base64: string; mimeType: string }> {
-  const apiKey = process.env.GEMINI_API_KEY!;
+  const apiKey = process.env.REPLICATE_API_TOKEN!;
 
-  const parts: Array<
-    | { text: string }
-    | { inline_data: { mime_type: string; data: string } }
-  > = [];
-
-  if (params.referenceImages?.length) {
-    parts.push({
-      text: "Use esta imagem como referencia visual para o estilo e aparencia da pessoa a ser incluida na cena:",
-    });
-    for (const ref of params.referenceImages) {
-      parts.push({
-        inline_data: { mime_type: ref.mimeType, data: ref.base64 },
-      });
-    }
-  }
-
-  parts.push({ text: params.prompt });
-
-  const body = {
-    contents: [{ role: "user", parts }],
-    generationConfig: {
-      responseModalities: ["TEXT", "IMAGE"],
-      imageConfig: {
-        aspectRatio: aspectRatioFor(params.imageFormat),
-        imageSize: "2K",
-      },
-    },
+  const input: Record<string, unknown> = {
+    prompt: params.prompt,
+    aspect_ratio: aspectRatioFor(params.imageFormat),
+    output_format: "png",
   };
 
-  const res = await fetch(GEMINI_API_URL, {
+  if (params.referenceImages?.length) {
+    input.image_input = params.referenceImages.map(
+      (ref) => `data:${ref.mimeType};base64,${ref.base64}`
+    );
+  }
+
+  const res = await fetch(`${REPLICATE_API}/models/${MODEL}/predictions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-goog-api-key": apiKey,
+      Authorization: `Bearer ${apiKey}`,
+      Prefer: "wait=60",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ input }),
   });
 
   if (!res.ok) {
     const error = await res.text();
-    console.error("Gemini Image API error:", error);
+    console.error("Replicate API error:", error);
     throw new Error(`Falha na geracao de imagem: ${res.status}`);
   }
 
-  const data: any = await res.json();
-  const candidates = data.candidates;
+  let prediction = (await res.json()) as Prediction;
 
-  if (!candidates?.length) {
-    console.error("Gemini sem candidates:", JSON.stringify(data).slice(0, 500));
-    throw new Error("Nenhuma resposta gerada pelo Gemini. Tente novamente.");
+  const terminal = new Set(["succeeded", "failed", "canceled"]);
+  const startedAt = Date.now();
+  while (!terminal.has(prediction.status) && Date.now() - startedAt < MAX_WAIT_MS) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+    const pollRes = await fetch(prediction.urls.get, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!pollRes.ok) {
+      throw new Error(`Falha ao consultar geracao: ${pollRes.status}`);
+    }
+    prediction = (await pollRes.json()) as Prediction;
   }
 
-  const content = candidates[0].content;
-  if (!content?.parts) {
-    const reason = candidates[0].finishReason || "unknown";
-    const safetyRatings = JSON.stringify(candidates[0].safetyRatings || []);
-    console.error(`Gemini bloqueou a geracao. Reason: ${reason}, Safety: ${safetyRatings}`);
+  if (prediction.status !== "succeeded") {
+    const reason = prediction.error || prediction.status;
+    console.error("Replicate falhou:", reason);
     throw new Error(
-      `Imagem bloqueada pelo filtro de seguranca (${reason}). Tente com outro tema.`
+      typeof reason === "string" && reason.length > 0
+        ? `Falha na geracao de imagem: ${reason}`
+        : "Falha na geracao de imagem. Tente novamente."
     );
   }
 
-  for (const part of content.parts) {
-    if (part.inlineData || part.inline_data) {
-      const inlineData = part.inlineData || part.inline_data;
-      return {
-        base64: inlineData.data,
-        mimeType: inlineData.mimeType || inlineData.mime_type || "image/png",
-      };
-    }
+  const output = prediction.output;
+  const imageUrl = Array.isArray(output) ? output[0] : output;
+  if (!imageUrl || typeof imageUrl !== "string") {
+    console.error("Replicate sem output:", JSON.stringify(prediction).slice(0, 500));
+    throw new Error("Replicate nao retornou URL da imagem.");
   }
 
-  const textParts = content.parts
-    .filter((p: Record<string, unknown>) => p.text)
-    .map((p: Record<string, unknown>) => p.text)
-    .join(" ");
-  console.error("Gemini retornou texto sem imagem:", textParts.slice(0, 300));
-  throw new Error("Gemini nao gerou imagem. Tente novamente com outro prompt.");
+  const imageRes = await fetch(imageUrl);
+  if (!imageRes.ok) {
+    throw new Error(`Falha ao baixar imagem gerada: ${imageRes.status}`);
+  }
+  const buffer = Buffer.from(await imageRes.arrayBuffer());
+  const mimeType = imageRes.headers.get("content-type") || "image/png";
+
+  return { base64: buffer.toString("base64"), mimeType };
 }
