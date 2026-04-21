@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Sparkles, UserCircle } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Sparkles, Upload, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { apiFetch } from "@/lib/api";
@@ -34,8 +35,8 @@ export default function CreatePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [credits, setCredits] = useState(0);
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
-  const [includeProfilePhoto, setIncludeProfilePhoto] = useState(false);
+  const [appearPhoto, setAppearPhoto] = useState<ReferenceImage | null>(null);
+  const [appearPhotoPreview, setAppearPhotoPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
@@ -51,13 +52,12 @@ export default function CreatePage() {
 
       const { data } = await supabase
         .from("profiles")
-        .select("credits, profile_photo_url, full_name")
+        .select("credits, full_name")
         .eq("id", user.id)
-        .single<{ credits: number; profile_photo_url: string | null; full_name: string | null }>();
+        .single<{ credits: number; full_name: string | null }>();
 
       if (data) {
         setCredits(data.credits);
-        setProfilePhotoUrl(data.profile_photo_url);
         setUserName(data.full_name);
       }
 
@@ -77,47 +77,45 @@ export default function CreatePage() {
     fetchCredits();
   }, []);
 
-  const handleModeSelect = useCallback(
-    async (selectedMode: "auto" | "prompt") => {
-      setMode(selectedMode);
-      setError(null);
+  const handleModeSelect = useCallback((selectedMode: "auto" | "prompt") => {
+    setMode(selectedMode);
+    setError(null);
+    // Ambos os modos exigem confirmacao explicita antes de avancar.
+  }, []);
 
-      if (selectedMode === "auto") {
-        setStep("generating");
-        setIsLoading(true);
+  const handleAutoGenerate = useCallback(async () => {
+    setError(null);
+    setStep("generating");
+    setIsLoading(true);
 
-        try {
-          const res = await apiFetch("/api/generate/auto", {
-            method: "POST",
-            body: JSON.stringify({ imageFormat: "square", includeProfilePhoto }),
-          });
+    try {
+      const res = await apiFetch("/api/generate/auto", {
+        method: "POST",
+        body: JSON.stringify({
+          imageFormat: format,
+          referenceImages: appearPhoto ? [appearPhoto] : undefined,
+        }),
+      });
 
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || "Erro ao gerar post automaticamente.");
-          }
-
-          const data = await res.json();
-          setPostId(data.postId);
-          setImageUrl(data.imageUrl);
-          setCaption(data.caption);
-          setHashtags(data.hashtags || []);
-          setCredits((prev) => Math.max(0, prev - 1));
-          setStep("preview");
-        } catch (err) {
-          setError(
-            err instanceof Error ? err.message : "Erro ao gerar post."
-          );
-          setStep("mode");
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setStep("prompt");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Erro ao gerar post automaticamente.");
       }
-    },
-    [includeProfilePhoto]
-  );
+
+      const data = await res.json();
+      setPostId(data.postId);
+      setImageUrl(data.imageUrl);
+      setCaption(data.caption);
+      setHashtags(data.hashtags || []);
+      setCredits((prev) => Math.max(0, prev - 1));
+      setStep("preview");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao gerar post.");
+      setStep("mode");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [appearPhoto, format]);
 
   const handlePromptSubmit = useCallback(
     async (userPrompt: string, imageFormat: "square" | "portrait") => {
@@ -147,6 +145,10 @@ export default function CreatePage() {
         const newPostId = postData.id || postData.post?.id;
         setPostId(newPostId);
 
+        const mergedRefs: ReferenceImage[] = appearPhoto
+          ? [appearPhoto, ...referenceImages]
+          : referenceImages;
+
         // Step 2: Generate image
         const imageRes = await apiFetch("/api/generate/image", {
           method: "POST",
@@ -154,9 +156,7 @@ export default function CreatePage() {
             postId: newPostId,
             userPrompt,
             imageFormat,
-            referenceImages:
-              referenceImages.length > 0 ? referenceImages : undefined,
-            includeProfilePhoto,
+            referenceImages: mergedRefs.length > 0 ? mergedRefs : undefined,
           }),
         });
 
@@ -196,7 +196,7 @@ export default function CreatePage() {
         setIsLoading(false);
       }
     },
-    [referenceImages, includeProfilePhoto]
+    [referenceImages, appearPhoto]
   );
 
   const handleRegenerateImage = useCallback(async () => {
@@ -330,8 +330,10 @@ export default function CreatePage() {
     setError(null);
     setIsLoading(false);
     setIsRegenerating(false);
-    setIncludeProfilePhoto(false);
-  }, []);
+    if (appearPhotoPreview) URL.revokeObjectURL(appearPhotoPreview);
+    setAppearPhoto(null);
+    setAppearPhotoPreview(null);
+  }, [appearPhotoPreview]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -369,60 +371,147 @@ export default function CreatePage() {
         </div>
       )}
 
-      {/* Opcao: Aparecer no post */}
-      {(step === "mode" || step === "prompt") && profilePhotoUrl && (
-        <div className="flex items-center gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
-          <button
-            type="button"
-            onClick={() => setIncludeProfilePhoto(!includeProfilePhoto)}
-            className={`relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 transition-colors ${
-              includeProfilePhoto
-                ? "border-[#1A73E8]"
-                : "border-muted-foreground/30"
-            }`}
-          >
-            <img
-              src={profilePhotoUrl}
-              alt="Sua foto"
-              className="size-full object-cover"
-            />
-            {includeProfilePhoto && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#1A73E8]/20">
-                <Check className="size-5 text-[#1A73E8]" />
-              </div>
-            )}
-          </button>
-          <div className="flex-1">
-            <label className="flex cursor-pointer items-center gap-2">
-              <input
-                type="checkbox"
-                checked={includeProfilePhoto}
-                onChange={(e) => setIncludeProfilePhoto(e.target.checked)}
-                className="sr-only"
-              />
-              <div
-                className={`relative h-6 w-11 rounded-full transition-colors ${
-                  includeProfilePhoto ? "bg-[#1A73E8]" : "bg-muted"
-                }`}
-              >
-                <div
-                  className={`absolute left-0.5 top-0.5 size-5 rounded-full bg-white transition-transform ${
-                    includeProfilePhoto ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </div>
-              <span className="text-sm font-medium">Aparecer no post</span>
-            </label>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Sua foto sera usada como referencia na imagem gerada
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Step: Mode Selection */}
       {step === "mode" && (
         <ModeSelector onSelect={handleModeSelect} selected={mode} />
+      )}
+
+      {/* Step: Auto mode — foto, formato e confirmacao em um unico card */}
+      {step === "mode" && mode === "auto" && (
+        <div className="space-y-5 rounded-xl bg-card p-6 ring-1 ring-foreground/10">
+          {/* Aparecer no post */}
+          <div className="flex items-center gap-3">
+            <div className="relative size-12 shrink-0">
+              <label className="flex size-full cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-muted-foreground/40 transition-colors hover:border-[#1A73E8]">
+                {appearPhotoPreview ? (
+                  <img
+                    src={appearPhotoPreview}
+                    alt="Sua foto"
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  <Upload className="size-5 text-muted-foreground" />
+                )}
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (!file) return;
+                    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+                      setError("Formato nao suportado. Use JPG, PNG ou WebP.");
+                      return;
+                    }
+                    if (file.size > 5 * 1024 * 1024) {
+                      setError("A imagem deve ter no maximo 5MB.");
+                      return;
+                    }
+                    const base64 = await new Promise<string>((resolve, reject) => {
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        const result = reader.result as string;
+                        resolve(result.split(",")[1]);
+                      };
+                      reader.onerror = reject;
+                      reader.readAsDataURL(file);
+                    });
+                    if (appearPhotoPreview) URL.revokeObjectURL(appearPhotoPreview);
+                    setAppearPhoto({ base64, mimeType: file.type });
+                    setAppearPhotoPreview(URL.createObjectURL(file));
+                    setError(null);
+                  }}
+                />
+              </label>
+              {appearPhotoPreview && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (appearPhotoPreview) URL.revokeObjectURL(appearPhotoPreview);
+                    setAppearPhoto(null);
+                    setAppearPhotoPreview(null);
+                  }}
+                  className="absolute -right-1 -top-1 z-10 flex size-5 items-center justify-center rounded-full bg-destructive text-white shadow-sm hover:bg-destructive/80"
+                >
+                  <X className="size-3" />
+                </button>
+              )}
+            </div>
+            <div className="flex-1">
+              <span className="text-sm font-medium">Aparecer no post</span>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {appearPhoto
+                  ? "Sua foto sera usada como referencia na imagem gerada"
+                  : "Envie uma foto sua para aparecer no post"}
+              </p>
+            </div>
+          </div>
+
+          {/* Formato da imagem */}
+          <div className="space-y-2 border-t pt-5">
+            <label className="text-sm font-medium">Formato da imagem</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setFormat("square")}
+                className={cn(
+                  "rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300",
+                  format === "square"
+                    ? "border-[#1A73E8] bg-[#1A73E8]/10 text-[#1A73E8]"
+                    : "border-border bg-background text-muted-foreground hover:bg-muted"
+                )}
+              >
+                Quadrado (1:1)
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormat("portrait")}
+                className={cn(
+                  "rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300",
+                  format === "portrait"
+                    ? "border-[#1A73E8] bg-[#1A73E8]/10 text-[#1A73E8]"
+                    : "border-border bg-background text-muted-foreground hover:bg-muted"
+                )}
+              >
+                Retrato (4:5)
+              </button>
+            </div>
+          </div>
+
+          <Button
+            onClick={handleAutoGenerate}
+            disabled={isLoading}
+            className="w-full bg-[#1A73E8] text-white hover:bg-[#0d5bbd]"
+            size="lg"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Gerar Post
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+
+      {/* Step: Prompt mode — confirmacao antes de ir para a tela de prompt */}
+      {step === "mode" && mode === "prompt" && (
+        <div className="rounded-xl bg-card p-6 ring-1 ring-foreground/10">
+          <Button
+            onClick={() => setStep("prompt")}
+            className="w-full bg-[#1A73E8] text-white hover:bg-[#0d5bbd]"
+            size="lg"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            Seguir
+          </Button>
+        </div>
       )}
 
       {/* Step: Prompt Input */}

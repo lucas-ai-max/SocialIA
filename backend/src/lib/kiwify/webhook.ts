@@ -1,5 +1,9 @@
 import crypto from "crypto";
 
+// Kiwify envia o token de webhook diretamente na query string (?signature=<token>)
+// e espera comparacao contra o secret configurado no painel.
+// Se a integracao for trocada para HMAC-sobre-body, este arquivo e o
+// middleware em src/index.ts precisam ser ajustados para raw-body + HMAC.
 export function verifyKiwifySignature(querySignature: unknown): boolean {
   const secret = process.env.KIWIFY_WEBHOOK_SECRET;
   if (!secret || typeof querySignature !== "string") return false;

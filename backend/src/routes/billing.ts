@@ -147,8 +147,14 @@ router.post("/webhook", async (req: Request, res: Response) => {
             { onConflict: "user_id" }
           );
 
-        await addCredits(admin, userId, plan.credits, plan.name, orderId);
-        console.log(`[webhook] ${event}: +${plan.credits} creditos para ${userId}`);
+        const result = await addCredits(admin, userId, plan.credits, plan.name, orderId);
+        if (result === "duplicate") {
+          console.log(`[webhook] ${event} duplicado (orderId=${orderId}) — creditos ja concedidos`);
+        } else if (result === "credited") {
+          console.log(`[webhook] ${event}: +${plan.credits} creditos para ${userId}`);
+        } else {
+          console.error(`[webhook] ${event}: profile ${userId} nao encontrado`);
+        }
         break;
       }
 
@@ -281,23 +287,33 @@ async function addCredits(
   creditsToAdd: number,
   planName: string,
   kiwifyOrderId: string
-) {
+): Promise<"credited" | "duplicate" | "not_found"> {
+  // Kiwify reentrega webhooks em caso de falha. O UNIQUE index em
+  // credit_transactions.kiwify_order_id e a rede de seguranca final,
+  // mas fazemos a checagem explicita aqui para evitar o UPDATE de saldo.
+  if (kiwifyOrderId) {
+    const { data: existing } = await admin
+      .from("credit_transactions")
+      .select("id")
+      .eq("kiwify_order_id", kiwifyOrderId)
+      .maybeSingle<{ id: string }>();
+
+    if (existing) return "duplicate";
+  }
+
   const { data: profile } = await admin
     .from("profiles")
     .select("credits")
     .eq("id", userId)
     .single<{ credits: number }>();
 
-  if (!profile) return;
+  if (!profile) return "not_found";
 
   const newBalance = profile.credits + creditsToAdd;
 
-  await admin
-    .from("profiles")
-    .update({ credits: newBalance, updated_at: new Date().toISOString() } as never)
-    .eq("id", userId);
-
-  await admin.from("credit_transactions").insert({
+  // Insere a transacao PRIMEIRO: se o UNIQUE index rejeitar (outro webhook
+  // em paralelo), abortamos sem tocar o saldo.
+  const { error: insertError } = await admin.from("credit_transactions").insert({
     user_id: userId,
     type: "purchase",
     amount: creditsToAdd,
@@ -305,6 +321,19 @@ async function addCredits(
     description: `Plano ${planName} (${creditsToAdd} creditos)`,
     kiwify_order_id: kiwifyOrderId || null,
   } as never);
+
+  if (insertError) {
+    // 23505 = unique_violation (pg) — retry concorrente da Kiwify
+    if ((insertError as { code?: string }).code === "23505") return "duplicate";
+    throw insertError;
+  }
+
+  await admin
+    .from("profiles")
+    .update({ credits: newBalance, updated_at: new Date().toISOString() } as never)
+    .eq("id", userId);
+
+  return "credited";
 }
 
 function isUuid(value: string): boolean {

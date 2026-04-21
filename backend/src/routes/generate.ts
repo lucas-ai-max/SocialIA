@@ -94,17 +94,6 @@ router.post("/image", async (req: AuthRequest, res: Response) => {
       headline = (userPrompt || brandProfile.niche).toUpperCase().slice(0, 40);
     }
 
-    // Build prompt and generate image
-    let prompt = buildImagePrompt({
-      userPrompt,
-      niche: brandProfile.niche,
-      visualStyle: brandProfile.visual_style,
-      colorPalette: brandProfile.color_palette ?? undefined,
-      imageFormat,
-      headline,
-      subheadline,
-    });
-
     // If includeProfilePhoto, fetch profile photo and add as reference
     let allReferenceImages = referenceImages || [];
     if (includeProfilePhoto) {
@@ -124,11 +113,25 @@ router.post("/image", async (req: AuthRequest, res: Response) => {
             { base64: photoBase64, mimeType: photoMime },
             ...allReferenceImages,
           ];
-          prompt += "\nInclua uma pessoa com aparencia semelhante a esta foto de referencia como protagonista da cena.";
         } catch (err) {
           console.error("Erro ao baixar foto de perfil:", err);
         }
       }
+    }
+
+    // Regra: com referencia -> so headline; sem referencia -> headline + subheadline
+    const hasReference = allReferenceImages.length > 0;
+    let prompt = buildImagePrompt({
+      userPrompt,
+      niche: brandProfile.niche,
+      visualStyle: brandProfile.visual_style,
+      colorPalette: brandProfile.color_palette ?? undefined,
+      imageFormat,
+      headline,
+      subheadline: hasReference ? undefined : subheadline,
+    });
+    if (hasReference) {
+      prompt += "\nInclua uma pessoa com aparencia semelhante a esta foto de referencia como protagonista da cena.";
     }
 
     let base64: string;
@@ -262,9 +265,9 @@ router.post("/auto", async (req: AuthRequest, res: Response) => {
     const userId = req.user!.id;
     const supabase = req.supabase!;
 
-    const { imageFormat, includeProfilePhoto } = req.body as {
+    const { imageFormat, referenceImages } = req.body as {
       imageFormat: "square" | "portrait";
-      includeProfilePhoto?: boolean;
+      referenceImages?: { base64: string; mimeType: string }[];
     };
 
     if (!imageFormat) {
@@ -313,7 +316,7 @@ router.post("/auto", async (req: AuthRequest, res: Response) => {
       userId,
       brandProfile,
       imageFormat,
-      includeProfilePhoto,
+      referenceImages,
     });
 
     if (!result) {

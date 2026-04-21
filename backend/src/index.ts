@@ -18,10 +18,18 @@ import brandProfileRouter from "./routes/brand-profile";
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// CORS
+// CORS — FRONTEND_URL pode ser um unico URL ou lista separada por virgulas.
+// Em dev, aceitamos 3000 e 3001 por padrao (Next costuma usar 3001 se 3000 estiver ocupada).
+const allowedOrigins = (process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((s) => s.trim()).filter(Boolean)
+  : ["http://localhost:3000", "http://localhost:3001"]);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} nao permitida pelo CORS`));
+    },
     credentials: true,
   })
 );

@@ -1,5 +1,9 @@
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent";
+
+function aspectRatioFor(format: "square" | "portrait"): string {
+  return format === "portrait" ? "3:4" : "1:1";
+}
 
 export async function generateImage(params: {
   prompt: string;
@@ -13,7 +17,6 @@ export async function generateImage(params: {
     | { inline_data: { mime_type: string; data: string } }
   > = [];
 
-  // Adicionar imagens de referencia se fornecidas
   if (params.referenceImages?.length) {
     parts.push({
       text: "Use esta imagem como referencia visual para o estilo e aparencia da pessoa a ser incluida na cena:",
@@ -31,6 +34,10 @@ export async function generateImage(params: {
     contents: [{ role: "user", parts }],
     generationConfig: {
       responseModalities: ["TEXT", "IMAGE"],
+      imageConfig: {
+        aspectRatio: aspectRatioFor(params.imageFormat),
+        imageSize: "2K",
+      },
     },
   };
 
@@ -56,7 +63,6 @@ export async function generateImage(params: {
 
   const content = candidates[0].content;
   if (!content?.parts) {
-    // Pode ser bloqueio de safety
     const reason = candidates[0].finishReason || "unknown";
     const safetyRatings = JSON.stringify(candidates[0].safetyRatings || []);
     console.error(`Gemini bloqueou a geracao. Reason: ${reason}, Safety: ${safetyRatings}`);
@@ -75,7 +81,6 @@ export async function generateImage(params: {
     }
   }
 
-  // Se chegou aqui, teve resposta de texto mas sem imagem
   const textParts = content.parts
     .filter((p: Record<string, unknown>) => p.text)
     .map((p: Record<string, unknown>) => p.text)
