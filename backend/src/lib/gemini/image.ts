@@ -26,6 +26,7 @@ export async function generateImage(params: {
     prompt: params.prompt,
     aspect_ratio: aspectRatioFor(params.imageFormat),
     output_format: "png",
+    resolution: "2K",
   };
 
   if (params.referenceImages?.length) {
@@ -55,6 +56,10 @@ export async function generateImage(params: {
   const terminal = new Set(["succeeded", "failed", "canceled"]);
   const startedAt = Date.now();
   while (!terminal.has(prediction.status) && Date.now() - startedAt < MAX_WAIT_MS) {
+    if (!prediction.urls?.get) {
+      console.error("Replicate sem urls.get:", JSON.stringify(prediction).slice(0, 500));
+      throw new Error("Resposta invalida do Replicate (sem url de polling).");
+    }
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
     const pollRes = await fetch(prediction.urls.get, {
       headers: { Authorization: `Bearer ${apiKey}` },
@@ -68,10 +73,14 @@ export async function generateImage(params: {
   if (prediction.status !== "succeeded") {
     const reason = prediction.error || prediction.status;
     console.error("Replicate falhou:", reason);
+    const reasonStr = typeof reason === "string" ? reason : "";
+    const isSafetyBlock = /safety|flagged|sensitive|policy|blocked/i.test(reasonStr);
     throw new Error(
-      typeof reason === "string" && reason.length > 0
-        ? `Falha na geracao de imagem: ${reason}`
-        : "Falha na geracao de imagem. Tente novamente."
+      isSafetyBlock
+        ? "Imagem bloqueada pelo filtro de seguranca. Tente com outro tema."
+        : reasonStr.length > 0
+          ? `Falha na geracao de imagem: ${reasonStr}`
+          : "Falha na geracao de imagem. Tente novamente."
     );
   }
 
