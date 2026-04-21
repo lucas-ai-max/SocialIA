@@ -1,5 +1,6 @@
 const OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
 const OPENAI_MODEL = "gpt-4.1-mini";
+const OPENAI_TIMEOUT_MS = 30_000;
 
 async function chat(prompt: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY!;
@@ -14,6 +15,7 @@ async function chat(prompt: string): Promise<string> {
       model: OPENAI_MODEL,
       messages: [{ role: "user", content: prompt }],
     }),
+    signal: AbortSignal.timeout(OPENAI_TIMEOUT_MS),
   });
 
   if (!res.ok) {
@@ -38,7 +40,10 @@ export async function generateCaption(prompt: string): Promise<string> {
 }
 
 export async function generateHashtags(prompt: string): Promise<string[]> {
-  const text = await chat(prompt).catch(() => "");
+  const text = await chat(prompt).catch((err) => {
+    console.error("generateHashtags falhou:", err);
+    return "";
+  });
 
   if (!text) return [];
 
