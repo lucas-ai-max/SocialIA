@@ -1,10 +1,10 @@
 const REPLICATE_API = "https://api.replicate.com/v1";
-const MODEL = "google/nano-banana-pro";
+const MODEL = "openai/gpt-image-2";
 const MAX_WAIT_MS = 120_000;
 const POLL_INTERVAL_MS = 2_000;
 
 function aspectRatioFor(format: "square" | "portrait"): string {
-  return format === "portrait" ? "3:4" : "1:1";
+  return format === "portrait" ? "2:3" : "1:1";
 }
 
 type Prediction = {
@@ -26,11 +26,11 @@ export async function generateImage(params: {
     prompt: params.prompt,
     aspect_ratio: aspectRatioFor(params.imageFormat),
     output_format: "png",
-    resolution: "2K",
+    quality: "high",
   };
 
   if (params.referenceImages?.length) {
-    input.image_input = params.referenceImages.map(
+    input.input_images = params.referenceImages.map(
       (ref) => `data:${ref.mimeType};base64,${ref.base64}`
     );
   }

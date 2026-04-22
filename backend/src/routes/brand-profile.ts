@@ -12,7 +12,7 @@ router.get("/", async (req: AuthRequest, res: Response) => {
     const { data, error } = await supabase
       .from("brand_profiles")
       .select(
-        "niche, brand_voice, target_audience, visual_style, content_pillars, additional_context"
+        "niche, brand_voice, target_audience, visual_style, content_pillars, additional_context, color_palette, brand_logo_url"
       )
       .eq("user_id", userId)
       .single();
@@ -42,19 +42,43 @@ router.put("/", async (req: AuthRequest, res: Response) => {
       visualStyle,
       contentPillars,
       additionalContext,
-    } = req.body;
+      colorPalette,
+      brandLogoUrl,
+    } = req.body as {
+      niche?: string;
+      targetAudience?: string;
+      brandVoice?: string;
+      visualStyle?: string;
+      contentPillars?: string[];
+      additionalContext?: string;
+      colorPalette?: string[];
+      brandLogoUrl?: string | null;
+    };
+
+    const normalizedColors = Array.isArray(colorPalette)
+      ? colorPalette
+          .map((c) => (typeof c === "string" ? c.trim() : ""))
+          .filter((c) => c.length > 0)
+      : [];
+
+    const updatePayload: Record<string, unknown> = {
+      niche: niche || null,
+      brand_voice: brandVoice || null,
+      target_audience: targetAudience || null,
+      visual_style: visualStyle || null,
+      content_pillars: contentPillars || [],
+      additional_context: additionalContext || null,
+      color_palette: normalizedColors,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (brandLogoUrl !== undefined) {
+      updatePayload.brand_logo_url = brandLogoUrl || null;
+    }
 
     const { data, error } = await supabase
       .from("brand_profiles")
-      .update({
-        niche: niche || null,
-        brand_voice: brandVoice || null,
-        target_audience: targetAudience || null,
-        visual_style: visualStyle || null,
-        content_pillars: contentPillars || [],
-        additional_context: additionalContext || null,
-        updated_at: new Date().toISOString(),
-      } as never)
+      .update(updatePayload as never)
       .eq("user_id", userId)
       .select()
       .single();

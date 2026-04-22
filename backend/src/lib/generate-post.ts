@@ -9,6 +9,7 @@ import {
   buildHeadlinePrompt,
 } from "./gemini/prompts";
 import { deductCredits, refundCredits } from "./credits";
+import { normalizeStorageUrl } from "./storage-url";
 
 export async function generateFullPost(params: {
   userId: string;
@@ -20,6 +21,7 @@ export async function generateFullPost(params: {
     color_palette: string[] | null;
     content_pillars: string[];
     additional_context: string | null;
+    brand_logo_url?: string | null;
   };
   imageFormat: "square" | "portrait";
   userPrompt?: string;
@@ -91,11 +93,12 @@ export async function generateFullPost(params: {
     headline = idea.toUpperCase().slice(0, 40);
   }
 
-  // 5. Generate image
-  let referenceImages = params.referenceImages;
+  // 5. Generate image — assemble reference images: [logo?, person?, ...userRefs]
+  const personReferenceImages: { base64: string; mimeType: string }[] = [
+    ...(params.referenceImages || []),
+  ];
 
-  // Include profile photo if requested
-  if (params.includeProfilePhoto && !referenceImages?.length) {
+  if (params.includeProfilePhoto && personReferenceImages.length === 0) {
     const { data: profile } = await admin
       .from("profiles")
       .select("profile_photo_url")
@@ -104,15 +107,14 @@ export async function generateFullPost(params: {
 
     if (profile?.profile_photo_url) {
       try {
-        const photoRes = await fetch(profile.profile_photo_url as string);
+        const photoUrl = normalizeStorageUrl(profile.profile_photo_url as string)!;
+        const photoRes = await fetch(photoUrl);
         if (photoRes.ok) {
           const buffer = Buffer.from(await photoRes.arrayBuffer());
-          referenceImages = [
-            {
-              base64: buffer.toString("base64"),
-              mimeType: photoRes.headers.get("content-type") || "image/jpeg",
-            },
-          ];
+          personReferenceImages.push({
+            base64: buffer.toString("base64"),
+            mimeType: photoRes.headers.get("content-type") || "image/jpeg",
+          });
         }
       } catch {
         /* skip */
@@ -120,8 +122,28 @@ export async function generateFullPost(params: {
     }
   }
 
-  // Regra: com imagem de referencia -> so headline; sem referencia -> headline + subheadline
-  const hasReference = (referenceImages?.length ?? 0) > 0;
+  let logoReference: { base64: string; mimeType: string } | null = null;
+  if (bp.brand_logo_url) {
+    try {
+      const logoUrl = normalizeStorageUrl(bp.brand_logo_url)!;
+      const logoRes = await fetch(logoUrl);
+      if (logoRes.ok) {
+        const logoBuffer = Buffer.from(await logoRes.arrayBuffer());
+        logoReference = {
+          base64: logoBuffer.toString("base64"),
+          mimeType: logoRes.headers.get("content-type") || "image/png",
+        };
+      }
+    } catch (err) {
+      console.error("Erro ao baixar logotipo da marca:", err);
+    }
+  }
+
+  const referenceImages = logoReference
+    ? [logoReference, ...personReferenceImages]
+    : personReferenceImages;
+
+  const hasPersonReference = personReferenceImages.length > 0;
   const imagePrompt = buildImagePrompt({
     userPrompt: idea,
     niche: bp.niche,
@@ -129,20 +151,23 @@ export async function generateFullPost(params: {
     colorPalette: bp.color_palette ?? undefined,
     imageFormat: params.imageFormat,
     headline,
-    subheadline: hasReference ? undefined : subheadline,
+    subheadline: hasPersonReference ? undefined : subheadline,
+    hasBrandLogo: !!logoReference,
   });
+
+  const personHint = hasPersonReference
+    ? logoReference
+      ? "\nInclua uma pessoa com aparencia semelhante a(s) foto(s) de referencia (EXCLUINDO a primeira imagem, que e o logotipo) como protagonista da cena."
+      : "\nInclua uma pessoa com aparencia semelhante a foto de referencia como protagonista da cena."
+    : "";
 
   let base64: string;
   let mimeType: string;
   try {
     const imageResult = await generateImage({
-      prompt:
-        imagePrompt +
-        (hasReference
-          ? "\nInclua uma pessoa com aparencia semelhante a foto de referencia como protagonista da cena."
-          : ""),
+      prompt: imagePrompt + personHint,
       imageFormat: params.imageFormat,
-      referenceImages,
+      referenceImages: referenceImages.length > 0 ? referenceImages : undefined,
     });
     base64 = imageResult.base64;
     mimeType = imageResult.mimeType;

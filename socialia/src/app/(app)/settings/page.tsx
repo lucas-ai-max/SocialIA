@@ -59,7 +59,7 @@ export default async function SettingsPage() {
   // Fetch brand profile
   const { data: brand } = await supabase
     .from("brand_profiles")
-    .select("niche, brand_voice, target_audience, visual_style, content_pillars, additional_context")
+    .select("niche, brand_voice, target_audience, visual_style, content_pillars, additional_context, color_palette, brand_logo_url")
     .eq("user_id", user.id)
     .single<{
       niche: string | null;
@@ -68,6 +68,8 @@ export default async function SettingsPage() {
       visual_style: string | null;
       content_pillars: string[] | null;
       additional_context: string | null;
+      color_palette: string[] | null;
+      brand_logo_url: string | null;
     }>();
 
   return (
@@ -132,6 +134,7 @@ export default async function SettingsPage() {
           <CardContent className="space-y-3">
             {brand ? (
               <BrandEditor
+                userId={user.id}
                 initialData={{
                   niche: brand.niche,
                   brand_voice: brand.brand_voice,
@@ -139,6 +142,8 @@ export default async function SettingsPage() {
                   visual_style: brand.visual_style,
                   content_pillars: brand.content_pillars,
                   additional_context: brand.additional_context,
+                  color_palette: brand.color_palette,
+                  brand_logo_url: brand.brand_logo_url,
                 }}
               />
             ) : (

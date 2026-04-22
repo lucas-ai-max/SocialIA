@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Camera, User, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { normalizeStorageUrl } from "@/lib/storage-url";
 
 interface ProfilePhotoUploadProps {
   userId: string;
@@ -17,7 +18,7 @@ export function ProfilePhotoUpload({
   userId,
   currentPhotoUrl,
 }: ProfilePhotoUploadProps) {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(currentPhotoUrl);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(normalizeStorageUrl(currentPhotoUrl));
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +57,8 @@ export function ProfilePhotoUpload({
         });
 
       if (uploadError) {
-        throw new Error("Erro ao fazer upload da foto.");
+        console.error("Supabase upload error:", uploadError);
+        throw new Error(uploadError.message || "Erro ao fazer upload da foto.");
       }
 
       const {
@@ -72,7 +74,8 @@ export function ProfilePhotoUpload({
         .eq("id", userId);
 
       if (updateError) {
-        throw new Error("Erro ao atualizar perfil.");
+        console.error("Supabase profile update error:", updateError);
+        throw new Error(updateError.message || "Erro ao atualizar perfil.");
       }
 
       setPhotoUrl(urlWithCacheBust);
@@ -102,6 +105,7 @@ export function ProfilePhotoUpload({
             src={photoUrl}
             alt="Foto de perfil"
             className="size-full object-cover"
+            onError={() => setPhotoUrl(null)}
           />
         ) : (
           <User className="size-10 text-muted-foreground" />
