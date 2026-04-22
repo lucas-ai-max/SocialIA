@@ -6,6 +6,7 @@ export function buildImagePrompt(params: {
   imageFormat: "square" | "portrait";
   headline?: string;
   subheadline?: string;
+  hasBrandLogo?: boolean;
 }): string {
   const topic = params.userPrompt || `conteudo para o nicho de ${params.niche}`;
 
@@ -104,6 +105,14 @@ COMPOSICAO:
 - Sujeito principal no centro ou parte inferior
 - Regra dos tercos, respiro visual para o texto
 - Narrativa clara e emocionalmente acessivel
+
+${params.hasBrandLogo ? `LOGOTIPO DA MARCA (CRITICO):
+- A PRIMEIRA imagem de referencia fornecida e o LOGOTIPO da marca
+- Inclua o logotipo de forma discreta e elegante na composicao final (canto inferior direito, por padrao)
+- Tamanho: aproximadamente 10-15% da largura da imagem, com respiro em volta
+- NAO distorca, corte, gire, recolora ou altere o logotipo — preserve formas e cores originais
+- Garanta contraste: use sombra sutil ou pequena area clara atras do logo se o fundo competir
+- O logo e um elemento de branding, nao o assunto da cena` : ""}
 
 REGRAS FINAIS:
 - Formato VERTICAL 1080x1350px (4:5)

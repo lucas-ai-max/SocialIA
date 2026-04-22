@@ -11,6 +11,7 @@ import {
 } from "../lib/gemini/prompts";
 import { deductCredits, refundCredits } from "../lib/credits";
 import { generateFullPost } from "../lib/generate-post";
+import { normalizeStorageUrl } from "../lib/storage-url";
 
 const router = Router();
 
@@ -44,6 +45,7 @@ router.post("/image", async (req: AuthRequest, res: Response) => {
         brand_voice: string;
         visual_style: string;
         color_palette: string[] | null;
+        brand_logo_url: string | null;
       }>();
 
     if (brandError || !brandProfile) {
@@ -94,8 +96,10 @@ router.post("/image", async (req: AuthRequest, res: Response) => {
       headline = (userPrompt || brandProfile.niche).toUpperCase().slice(0, 40);
     }
 
-    // If includeProfilePhoto, fetch profile photo and add as reference
-    let allReferenceImages = referenceImages || [];
+    // Build reference images: [logo?, profilePhoto?, ...userRefs]
+    const personReferenceImages: { base64: string; mimeType: string }[] = [
+      ...(referenceImages || []),
+    ];
     if (includeProfilePhoto) {
       const { data: profileData } = await supabase
         .from("profiles")
@@ -105,22 +109,43 @@ router.post("/image", async (req: AuthRequest, res: Response) => {
 
       if (profileData?.profile_photo_url) {
         try {
-          const photoRes = await fetch(profileData.profile_photo_url);
+          const photoUrl = normalizeStorageUrl(profileData.profile_photo_url)!;
+          const photoRes = await fetch(photoUrl);
+          if (!photoRes.ok) throw new Error(`status ${photoRes.status}`);
           const photoBuffer = Buffer.from(await photoRes.arrayBuffer());
           const photoBase64 = photoBuffer.toString("base64");
           const photoMime = photoRes.headers.get("content-type") || "image/jpeg";
-          allReferenceImages = [
-            { base64: photoBase64, mimeType: photoMime },
-            ...allReferenceImages,
-          ];
+          personReferenceImages.unshift({ base64: photoBase64, mimeType: photoMime });
         } catch (err) {
           console.error("Erro ao baixar foto de perfil:", err);
         }
       }
     }
 
-    // Regra: com referencia -> so headline; sem referencia -> headline + subheadline
-    const hasReference = allReferenceImages.length > 0;
+    // Fetch brand logo (prepended as first reference image when present)
+    let logoReference: { base64: string; mimeType: string } | null = null;
+    if (brandProfile.brand_logo_url) {
+      try {
+        const logoUrl = normalizeStorageUrl(brandProfile.brand_logo_url)!;
+        const logoRes = await fetch(logoUrl);
+        if (logoRes.ok) {
+          const logoBuffer = Buffer.from(await logoRes.arrayBuffer());
+          logoReference = {
+            base64: logoBuffer.toString("base64"),
+            mimeType: logoRes.headers.get("content-type") || "image/png",
+          };
+        }
+      } catch (err) {
+        console.error("Erro ao baixar logotipo da marca:", err);
+      }
+    }
+
+    const allReferenceImages = logoReference
+      ? [logoReference, ...personReferenceImages]
+      : personReferenceImages;
+
+    // Regra: com pessoa de referencia -> so headline; sem -> headline + subheadline
+    const hasPersonReference = personReferenceImages.length > 0;
     let prompt = buildImagePrompt({
       userPrompt,
       niche: brandProfile.niche,
@@ -128,10 +153,13 @@ router.post("/image", async (req: AuthRequest, res: Response) => {
       colorPalette: brandProfile.color_palette ?? undefined,
       imageFormat,
       headline,
-      subheadline: hasReference ? undefined : subheadline,
+      subheadline: hasPersonReference ? undefined : subheadline,
+      hasBrandLogo: !!logoReference,
     });
-    if (hasReference) {
-      prompt += "\nInclua uma pessoa com aparencia semelhante a esta foto de referencia como protagonista da cena.";
+    if (hasPersonReference) {
+      prompt += logoReference
+        ? "\nInclua uma pessoa com aparencia semelhante a(s) foto(s) de referencia (EXCLUINDO a primeira imagem, que e o logotipo) como protagonista da cena."
+        : "\nInclua uma pessoa com aparencia semelhante a esta foto de referencia como protagonista da cena.";
     }
 
     let base64: string;
@@ -288,6 +316,7 @@ router.post("/auto", async (req: AuthRequest, res: Response) => {
         color_palette: string[] | null;
         content_pillars: string[];
         additional_context: string | null;
+        brand_logo_url: string | null;
       }>();
 
     if (brandError || !brandProfile) {

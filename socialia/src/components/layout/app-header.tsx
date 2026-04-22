@@ -58,7 +58,7 @@ export function AppHeader({ credits, fullName, avatarUrl }: AppHeaderProps) {
               <AvatarFallback>{getInitials(fullName)}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" sideOffset={8}>
+          <DropdownMenuContent align="end" sideOffset={8} className="!w-auto min-w-48">
             <div className="px-2 py-1.5">
               <p className="text-sm font-medium">{fullName ?? "Usuário"}</p>
             </div>

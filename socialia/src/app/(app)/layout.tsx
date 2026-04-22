@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { normalizeStorageUrl } from "@/lib/storage-url";
 
 export default async function AppLayout({
   children,
@@ -20,12 +21,13 @@ export default async function AppLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("credits, full_name, avatar_url, onboarding_completed")
+    .select("credits, full_name, avatar_url, profile_photo_url, onboarding_completed")
     .eq("id", user.id)
     .single<{
       credits: number;
       full_name: string | null;
       avatar_url: string | null;
+      profile_photo_url: string | null;
       onboarding_completed: boolean;
     }>();
 
@@ -45,7 +47,7 @@ export default async function AppLayout({
       <AppHeader
         credits={profile.credits}
         fullName={profile.full_name}
-        avatarUrl={profile.avatar_url}
+        avatarUrl={normalizeStorageUrl(profile.profile_photo_url) ?? profile.avatar_url}
       />
       <div className="flex flex-1 overflow-hidden">
         <AppSidebar />

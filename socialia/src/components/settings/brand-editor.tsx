@@ -5,6 +5,8 @@ import { Loader2, X, Plus, Check, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { apiFetch } from "@/lib/api";
+import { BrandLogoUpload } from "@/components/settings/brand-logo-upload";
+import { normalizeStorageUrl } from "@/lib/storage-url";
 
 interface BrandData {
   niche: string | null;
@@ -13,10 +15,13 @@ interface BrandData {
   visual_style: string | null;
   content_pillars: string[] | null;
   additional_context: string | null;
+  color_palette: string[] | null;
+  brand_logo_url: string | null;
 }
 
 interface BrandEditorProps {
   initialData: BrandData;
+  userId: string;
 }
 
 const VOICE_OPTIONS = [
@@ -33,6 +38,8 @@ const STYLE_OPTIONS = [
   { value: "clean", label: "Clean" },
 ];
 
+const MAX_COLORS = 5;
+
 function getVoiceLabel(value: string | null) {
   return VOICE_OPTIONS.find((o) => o.value === value)?.label || value || "Nao informado";
 }
@@ -41,7 +48,48 @@ function getStyleLabel(value: string | null) {
   return STYLE_OPTIONS.find((o) => o.value === value)?.label || value || "Nao informado";
 }
 
-export function BrandEditor({ initialData }: BrandEditorProps) {
+function normalizeHex(input: string): string | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+  // Accept "rgb(r, g, b)"
+  const rgbMatch = trimmed.match(/^rgb\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i);
+  if (rgbMatch) {
+    const [r, g, b] = [rgbMatch[1], rgbMatch[2], rgbMatch[3]].map((n) => parseInt(n, 10));
+    if ([r, g, b].every((v) => v >= 0 && v <= 255)) {
+      return (
+        "#" +
+        [r, g, b]
+          .map((v) => v.toString(16).padStart(2, "0"))
+          .join("")
+          .toUpperCase()
+      );
+    }
+  }
+  // Accept "#RGB", "RGB", "#RRGGBB", "RRGGBB"
+  const stripped = trimmed.startsWith("#") ? trimmed.slice(1) : trimmed;
+  if (/^[0-9a-f]{3}$/i.test(stripped)) {
+    const full = stripped
+      .split("")
+      .map((c) => c + c)
+      .join("");
+    return "#" + full.toUpperCase();
+  }
+  if (/^[0-9a-f]{6}$/i.test(stripped)) {
+    return "#" + stripped.toUpperCase();
+  }
+  return null;
+}
+
+function hexToRgbLabel(hex: string): string {
+  const normalized = normalizeHex(hex);
+  if (!normalized) return hex;
+  const r = parseInt(normalized.slice(1, 3), 16);
+  const g = parseInt(normalized.slice(3, 5), 16);
+  const b = parseInt(normalized.slice(5, 7), 16);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+export function BrandEditor({ initialData, userId }: BrandEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [niche, setNiche] = useState(initialData.niche || "");
   const [brandVoice, setBrandVoice] = useState(initialData.brand_voice || "");
@@ -49,7 +97,10 @@ export function BrandEditor({ initialData }: BrandEditorProps) {
   const [visualStyle, setVisualStyle] = useState(initialData.visual_style || "");
   const [contentPillars, setContentPillars] = useState<string[]>(initialData.content_pillars || []);
   const [additionalContext, setAdditionalContext] = useState(initialData.additional_context || "");
+  const [colorPalette, setColorPalette] = useState<string[]>(initialData.color_palette || []);
+  const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(initialData.brand_logo_url);
   const [newPillar, setNewPillar] = useState("");
+  const [newColor, setNewColor] = useState("#1A73E8");
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -61,6 +112,29 @@ export function BrandEditor({ initialData }: BrandEditorProps) {
     }
   };
 
+  const addColor = () => {
+    if (colorPalette.length >= MAX_COLORS) return;
+    const hex = normalizeHex(newColor);
+    if (!hex) {
+      setMessage({ type: "error", text: "Cor invalida. Use hexadecimal (#1A73E8) ou rgb(r,g,b)." });
+      return;
+    }
+    if (colorPalette.includes(hex)) return;
+    setColorPalette([...colorPalette, hex]);
+    setNewColor("#1A73E8");
+    setMessage(null);
+  };
+
+  const updateColor = (index: number, rawValue: string) => {
+    const hex = normalizeHex(rawValue);
+    if (!hex) return;
+    setColorPalette(colorPalette.map((c, i) => (i === index ? hex : c)));
+  };
+
+  const removeColor = (index: number) => {
+    setColorPalette(colorPalette.filter((_, i) => i !== index));
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     setMessage(null);
@@ -68,7 +142,14 @@ export function BrandEditor({ initialData }: BrandEditorProps) {
       const res = await apiFetch("/api/brand-profile", {
         method: "PUT",
         body: JSON.stringify({
-          niche, targetAudience, brandVoice, visualStyle, contentPillars, additionalContext,
+          niche,
+          targetAudience,
+          brandVoice,
+          visualStyle,
+          contentPillars,
+          additionalContext,
+          colorPalette,
+          brandLogoUrl,
         }),
       });
       if (!res.ok) {
@@ -92,6 +173,8 @@ export function BrandEditor({ initialData }: BrandEditorProps) {
     setVisualStyle(initialData.visual_style || "");
     setContentPillars(initialData.content_pillars || []);
     setAdditionalContext(initialData.additional_context || "");
+    setColorPalette(initialData.color_palette || []);
+    setBrandLogoUrl(initialData.brand_logo_url);
     setIsEditing(false);
     setMessage(null);
   };
@@ -100,6 +183,44 @@ export function BrandEditor({ initialData }: BrandEditorProps) {
   if (!isEditing) {
     return (
       <div className="space-y-3">
+        <div>
+          <p className="text-sm text-muted-foreground">Logotipo</p>
+          {brandLogoUrl ? (
+            <img
+              src={normalizeStorageUrl(brandLogoUrl) || ""}
+              alt="Logotipo da marca"
+              className="mt-1 size-20 rounded-lg border border-border object-contain p-2"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <p className="font-medium">Nenhum logotipo enviado</p>
+          )}
+        </div>
+        <Separator />
+        <div>
+          <p className="text-sm text-muted-foreground">Cores da marca</p>
+          {colorPalette.length > 0 ? (
+            <div className="mt-1 flex flex-wrap gap-2">
+              {colorPalette.map((c) => (
+                <div
+                  key={c}
+                  className="flex items-center gap-2 rounded-full border border-border px-2 py-1"
+                >
+                  <span
+                    className="size-5 rounded-full border border-border/50"
+                    style={{ backgroundColor: c }}
+                  />
+                  <span className="text-xs font-mono">{c}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="font-medium">Nenhuma cor definida</p>
+          )}
+        </div>
+        <Separator />
         <div>
           <p className="text-sm text-muted-foreground">Nicho</p>
           <p className="font-medium">{niche || "Nao informado"}</p>
@@ -169,6 +290,87 @@ export function BrandEditor({ initialData }: BrandEditorProps) {
   // ---- EDIT VIEW ----
   return (
     <div className="space-y-4">
+      <div>
+        <label className="mb-1 block text-sm text-muted-foreground">Logotipo da marca</label>
+        <BrandLogoUpload
+          userId={userId}
+          value={brandLogoUrl}
+          onChange={setBrandLogoUrl}
+          disabled={isSaving}
+        />
+        <p className="mt-1 text-xs text-muted-foreground/70">
+          Sera incluido de forma discreta nas imagens geradas.
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm text-muted-foreground">
+          Cores da marca{" "}
+          <span className="text-xs text-muted-foreground/60">
+            (ate {MAX_COLORS} — a 1a e a cor primaria)
+          </span>
+        </label>
+        <div className="mb-2 flex flex-wrap gap-2">
+          {colorPalette.map((hex, idx) => (
+            <div
+              key={`${hex}-${idx}`}
+              className="flex items-center gap-2 rounded-full border border-border bg-background px-2 py-1"
+            >
+              <input
+                type="color"
+                value={hex}
+                onChange={(e) => updateColor(idx, e.target.value)}
+                className="size-6 cursor-pointer rounded-full border-0 bg-transparent p-0"
+                aria-label={`Cor ${idx + 1}`}
+              />
+              <span className="font-mono text-xs">{hex}</span>
+              <span className="text-[10px] text-muted-foreground">{hexToRgbLabel(hex)}</span>
+              <button
+                type="button"
+                onClick={() => removeColor(idx)}
+                className="rounded-full p-0.5 transition-colors hover:bg-destructive/10"
+                aria-label="Remover cor"
+              >
+                <X className="size-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+        {colorPalette.length < MAX_COLORS && (
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={normalizeHex(newColor) || "#1A73E8"}
+              onChange={(e) => setNewColor(e.target.value)}
+              className="size-10 cursor-pointer rounded-full border border-input bg-background p-0"
+              aria-label="Selecionar cor"
+            />
+            <input
+              type="text"
+              value={newColor}
+              onChange={(e) => setNewColor(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addColor();
+                }
+              }}
+              placeholder="#1A73E8 ou rgb(26, 115, 232)"
+              className="flex-1 rounded-full border border-input bg-background px-5 py-2 text-sm font-mono outline-none transition-colors focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8]"
+            />
+            <button
+              type="button"
+              onClick={addColor}
+              disabled={!normalizeHex(newColor)}
+              className="flex items-center gap-1 rounded-full border border-[#1A73E8] px-4 py-2 text-sm text-[#1A73E8] transition-colors hover:bg-[#1A73E8]/10 disabled:opacity-40"
+            >
+              <Plus className="size-4" />
+              Adicionar
+            </button>
+          </div>
+        )}
+      </div>
+
       <div>
         <label className="mb-1 block text-sm text-muted-foreground">Nicho</label>
         <input
