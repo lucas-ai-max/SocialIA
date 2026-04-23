@@ -1,3 +1,5 @@
+const CURRENT_YEAR = new Date().getFullYear();
+
 export function buildImagePrompt(params: {
   userPrompt?: string;
   niche: string;
@@ -70,6 +72,8 @@ REGRAS CRITICAS DO TEXTO (NAO VIOLAR):
     : `TEXTO: NAO inclua texto na imagem.`;
 
   return `Crie uma imagem de POST para Instagram (formato vertical 4:5, 1080x1350px).
+
+ANO ATUAL: ${CURRENT_YEAR} — a cena, moda, dispositivos e referencias visuais devem refletir ${CURRENT_YEAR}, nao anos anteriores.
 
 ${textBlock}
 
@@ -150,6 +154,8 @@ export function buildCaptionPrompt(params: {
 
   return `Voce e um copywriter e estrategista narrativo especializado em conteudos emocionalmente envolventes para Instagram. Sua missao e traduzir a essencia da marca em legendas que unem apelo emocional, provocacao estrategica e engajamento.
 
+ANO ATUAL: ${CURRENT_YEAR}. Evite referencias datadas (ex: "em 2023", "ano passado quando..."). Se citar tendencias, use as de ${CURRENT_YEAR}.
+
 ${topicNote}
 
 Perfil da marca:
@@ -187,6 +193,8 @@ export function buildHeadlinePrompt(params: {
   const topic = params.userPrompt || `conteudo para o nicho de ${params.niche}`;
 
   return `Voce e um copywriter brasileiro nativo, especializado em headlines para posts de Instagram no estilo editorial. Escreva SEMPRE em portugues brasileiro PERFEITO, com ortografia impecavel.
+
+ANO ATUAL: ${CURRENT_YEAR}.
 
 TEMA: ${topic}
 NICHO: ${params.niche}
@@ -239,6 +247,8 @@ export function buildAutoIdeaPrompt(params: {
   targetAudience: string;
 }): string {
   return `Voce e um estrategista de conteudo para Instagram. Sugira UMA ideia de post para o seguinte perfil:
+
+ANO ATUAL: ${CURRENT_YEAR} — a ideia deve ser relevante para ${CURRENT_YEAR}, considerando tendencias atuais do nicho.
 
 - Nicho: ${params.niche}
 - Pilares de conteudo: ${params.contentPillars.join(", ")}
