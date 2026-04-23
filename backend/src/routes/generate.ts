@@ -155,6 +155,7 @@ router.post("/image", async (req: AuthRequest, res: Response) => {
       headline,
       subheadline: hasPersonReference ? undefined : subheadline,
       hasBrandLogo: !!logoReference,
+      variationSeed: `${postId}-${Date.now()}`,
     });
     if (hasPersonReference) {
       prompt += logoReference

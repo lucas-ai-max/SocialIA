@@ -37,11 +37,27 @@ export async function generateFullPost(params: {
   const admin = createAdminClient();
   const bp = params.brandProfile;
 
-  // 1. Generate idea
+  // 1. Generate idea — fetch recent auto ideas to avoid repeats
+  let recentIdeas: string[] = [];
+  if (!params.userPrompt) {
+    const { data: recent } = await admin
+      .from("posts")
+      .select("user_prompt")
+      .eq("user_id", params.userId)
+      .eq("auto_generated", true)
+      .not("user_prompt", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    recentIdeas = (recent || [])
+      .map((r: { user_prompt: string | null }) => r.user_prompt || "")
+      .filter((s: string) => s.length > 0);
+  }
+
   const ideaPrompt = buildAutoIdeaPrompt({
     niche: bp.niche,
     contentPillars: bp.content_pillars,
     targetAudience: bp.target_audience,
+    recentIdeas,
   });
   const idea = params.userPrompt || (await generateIdea(ideaPrompt));
 
@@ -153,6 +169,7 @@ export async function generateFullPost(params: {
     headline,
     subheadline: hasPersonReference ? undefined : subheadline,
     hasBrandLogo: !!logoReference,
+    variationSeed: post.id,
   });
 
   const personHint = hasPersonReference

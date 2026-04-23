@@ -1,5 +1,32 @@
 const CURRENT_YEAR = new Date().getFullYear();
 
+const VARIATION_CUES: string[] = [
+  "Enquadramento low-angle (camera um pouco abaixo), sujeito olhando pra cima, ceu/teto visivel",
+  "Plano aberto wide: sujeito pequeno no terco inferior, muita atmosfera/ambiente ao redor",
+  "Close-up intimista com profundidade de campo muito rasa (f/1.8), foco nos olhos/detalhe",
+  "Silhueta ou contraluz contra luz quente (golden hour, janela, led quente)",
+  "Plano zenital (top-down) sobre um objeto simbolico no centro, organizacao geometrica",
+  "Over-the-shoulder: foco no que o sujeito observa, sujeito parcialmente fora de foco",
+  "Composicao assimetrica com sujeito no terco direito, espaco negativo amplo a esquerda",
+  "Uso criativo de sombras duras e padroes de luz (blinds, folhagem, luz coada)",
+  "Camera em movimento sugerido (blur de movimento sutil), sujeito estatico em foco",
+  "Duplo plano: um objeto proximo em desfoco no primeiro plano, sujeito no fundo nitido",
+  "Minimalismo radical: sujeito em ambiente quase vazio, uma unica cor dominante de fundo",
+  "Tons splashed: luz colorida (neon, projecao) pintando parte do sujeito/ambiente",
+  "Composicao em camadas: objeto + sujeito + fundo bem separados em profundidade",
+  "Plano detalhe de maos/objeto que conta a historia, sujeito fora do enquadramento",
+  "Reflexos em superficies (vidro, agua, espelho) criando narrativa dupla",
+  "Contraste de textura: suave vs aspero, macio vs duro, luz vs sombra",
+];
+
+function pickVariationCue(seed?: string): string {
+  const index =
+    seed && seed.length > 0
+      ? Math.abs([...seed].reduce((h, c) => h * 31 + c.charCodeAt(0), 0)) % VARIATION_CUES.length
+      : Math.floor(Math.random() * VARIATION_CUES.length);
+  return VARIATION_CUES[index]!;
+}
+
 export function buildImagePrompt(params: {
   userPrompt?: string;
   niche: string;
@@ -9,6 +36,7 @@ export function buildImagePrompt(params: {
   headline?: string;
   subheadline?: string;
   hasBrandLogo?: boolean;
+  variationSeed?: string;
 }): string {
   const topic = params.userPrompt || `conteudo para o nicho de ${params.niche}`;
 
@@ -109,6 +137,7 @@ COMPOSICAO:
 - Sujeito principal no centro ou parte inferior
 - Regra dos tercos, respiro visual para o texto
 - Narrativa clara e emocionalmente acessivel
+- ABORDAGEM VISUAL DESTA IMAGEM (nao ignore): ${pickVariationCue(params.variationSeed)}
 
 ${params.hasBrandLogo ? `LOGOTIPO DA MARCA (CRITICO):
 - A PRIMEIRA imagem de referencia fornecida e o LOGOTIPO da marca
@@ -245,7 +274,18 @@ export function buildAutoIdeaPrompt(params: {
   niche: string;
   contentPillars: string[];
   targetAudience: string;
+  recentIdeas?: string[];
 }): string {
+  const recent = (params.recentIdeas || [])
+    .map((i) => i.trim())
+    .filter((i) => i.length > 0)
+    .slice(0, 10);
+
+  const avoidBlock =
+    recent.length > 0
+      ? `\nIDEIAS RECENTES JA USADAS POR ESTE USUARIO (NAO REPITA tema, angulo, nem reformulacao; proponha algo genuinamente diferente):\n${recent.map((i) => `- ${i}`).join("\n")}\n`
+      : "";
+
   return `Voce e um estrategista de conteudo para Instagram. Sugira UMA ideia de post para o seguinte perfil:
 
 ANO ATUAL: ${CURRENT_YEAR} — a ideia deve ser relevante para ${CURRENT_YEAR}, considerando tendencias atuais do nicho.
@@ -253,11 +293,12 @@ ANO ATUAL: ${CURRENT_YEAR} — a ideia deve ser relevante para ${CURRENT_YEAR}, 
 - Nicho: ${params.niche}
 - Pilares de conteudo: ${params.contentPillars.join(", ")}
 - Publico-alvo: ${params.targetAudience}
-
+${avoidBlock}
 Regras:
 - A ideia deve ser relevante, engajante e emocionalmente provocativa
 - Descreva em uma frase curta e objetiva (maximo 100 caracteres)
 - Foque em dores, desejos ou transformacoes do publico-alvo
+- VARIE o angulo: alterne entre dor, desejo, mito, bastidor, contradicao, micro-habito, provocacao, historia real
 - Responda APENAS com a ideia, sem explicacoes
 
 Exemplo: "O dia que voce parou de postar por medo de julgamento"`;

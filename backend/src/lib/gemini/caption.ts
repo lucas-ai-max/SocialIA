@@ -2,8 +2,22 @@ const OPENAI_CHAT_URL = "https://api.openai.com/v1/chat/completions";
 const OPENAI_MODEL = "gpt-4.1-mini";
 const OPENAI_TIMEOUT_MS = 30_000;
 
-async function chat(prompt: string): Promise<string> {
+type ChatOpts = {
+  temperature?: number;
+  presencePenalty?: number;
+  frequencyPenalty?: number;
+};
+
+async function chat(prompt: string, opts: ChatOpts = {}): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY!;
+
+  const body: Record<string, unknown> = {
+    model: OPENAI_MODEL,
+    messages: [{ role: "user", content: prompt }],
+  };
+  if (opts.temperature !== undefined) body.temperature = opts.temperature;
+  if (opts.presencePenalty !== undefined) body.presence_penalty = opts.presencePenalty;
+  if (opts.frequencyPenalty !== undefined) body.frequency_penalty = opts.frequencyPenalty;
 
   const res = await fetch(OPENAI_CHAT_URL, {
     method: "POST",
@@ -11,10 +25,7 @@ async function chat(prompt: string): Promise<string> {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      messages: [{ role: "user", content: prompt }],
-    }),
+    body: JSON.stringify(body),
     signal: AbortSignal.timeout(OPENAI_TIMEOUT_MS),
   });
 
@@ -55,6 +66,10 @@ export async function generateHashtags(prompt: string): Promise<string[]> {
 }
 
 export async function generateIdea(prompt: string): Promise<string> {
-  const text = await chat(prompt);
+  const text = await chat(prompt, {
+    temperature: 1.1,
+    presencePenalty: 0.6,
+    frequencyPenalty: 0.5,
+  });
   return text.replace(/^["']|["']$/g, "");
 }
