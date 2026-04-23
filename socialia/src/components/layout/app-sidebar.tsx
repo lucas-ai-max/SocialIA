@@ -13,39 +13,46 @@ const navItems = [
   { label: "Configurações", href: "/settings", icon: Settings },
 ];
 
-export function AppSidebar() {
+export function SidebarNavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r bg-white">
-      <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
-        {navItems.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
-          const Icon = item.icon;
+    <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
+      {navItems.map((item) => {
+        const isActive =
+          pathname === item.href || pathname.startsWith(item.href + "/");
+        const Icon = item.icon;
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            className={cn(
+              "flex items-center gap-3 rounded-full px-3 py-2.5 text-[13px] font-medium transition-all duration-300",
+              isActive
+                ? "bg-[#1A73E8]/10 text-[#1A73E8]"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Icon
               className={cn(
-                "flex items-center gap-3 rounded-full px-3 py-2.5 text-[13px] font-medium transition-all duration-300",
-                isActive
-                  ? "bg-[#1A73E8]/10 text-[#1A73E8]"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                "size-5",
+                isActive ? "text-[#1A73E8]" : "text-muted-foreground"
               )}
-            >
-              <Icon
-                className={cn(
-                  "size-5",
-                  isActive ? "text-[#1A73E8]" : "text-muted-foreground"
-                )}
-              />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+            />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+export function AppSidebar() {
+  return (
+    <aside className="hidden w-60 shrink-0 flex-col border-r bg-white md:flex">
+      <SidebarNavLinks />
     </aside>
   );
 }

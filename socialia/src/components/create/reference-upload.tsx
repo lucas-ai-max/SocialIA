@@ -143,7 +143,7 @@ export function ReferenceUpload({ onImagesChange }: ReferenceUploadProps) {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {images.length > 0 && (
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-wrap gap-3 pt-2">
           {images.map((img, index) => (
             <div key={index} className="group relative">
               <img

@@ -196,14 +196,14 @@ export default function AutopilotPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="flex size-10 items-center justify-center rounded-full bg-[#1A73E8]/10">
           <Zap className="size-5 text-[#1A73E8]" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold text-[#1F2937]">Autopilot</h1>
+          <h1 className="text-xl font-semibold text-[#1F2937] md:text-2xl">Autopilot</h1>
           <p className="text-sm text-[#474747]">
             Configure a IA para criar e publicar posts automaticamente
           </p>
@@ -211,7 +211,7 @@ export default function AutopilotPage() {
       </div>
 
       {/* Two-column grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
         {/* Left: Configuration */}
         <Card>
           <CardHeader>
@@ -314,7 +314,7 @@ export default function AutopilotPage() {
               {config.scheduleTimes.length < config.postsPerDay && (
                 <>
                   {showTimePicker ? (
-                    <div className="flex items-center gap-2 pt-1">
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
                       <select
                         value={newHour}
                         onChange={(e) => setNewHour(e.target.value)}
@@ -551,8 +551,8 @@ export default function AutopilotPage() {
 
       {/* Post Preview/Edit Dialog */}
       <Dialog open={!!previewPost} onOpenChange={(open) => !open && setPreviewPost(null)}>
-        <DialogContent className="!max-w-3xl !w-[90vw] !max-h-[85vh] !overflow-hidden !rounded-[22px] !p-0 !gap-0 flex flex-col">
-          <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
+        <DialogContent className="max-w-3xl w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] overflow-hidden rounded-[22px] !p-0 !gap-0 flex flex-col">
+          <DialogHeader className="px-4 pt-6 pb-4 shrink-0 sm:px-6">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-lg font-semibold text-[#1F2937]">Editar post</DialogTitle>
               <Badge variant="secondary" className="bg-[#F26526]/10 text-[#F26526] text-xs">
@@ -563,11 +563,11 @@ export default function AutopilotPage() {
 
           {previewPost && (
             <>
-            <div className="flex-1 overflow-y-auto px-6 space-y-5">
+            <div className="flex-1 overflow-y-auto px-4 space-y-5 sm:px-6">
               {/* Image */}
               {previewPost.generated_image_url ? (
                 <div className="flex justify-center rounded-[16px] overflow-hidden bg-[#f4f9fe]">
-                  <img src={previewPost.generated_image_url} alt="Post" className="max-h-[300px] w-auto object-contain" />
+                  <img src={previewPost.generated_image_url} alt="Post" className="max-h-[240px] w-auto object-contain sm:max-h-[300px]" />
                 </div>
               ) : (
                 <div className="flex items-center justify-center py-12 rounded-[16px] bg-[#f4f9fe]">
@@ -604,8 +604,8 @@ export default function AutopilotPage() {
             </div>
 
             {/* Footer - always visible */}
-            <div className="shrink-0 border-t border-[#e5e7eb] px-6 py-4 bg-white space-y-2">
-              <div className="grid grid-cols-3 gap-2">
+            <div className="shrink-0 border-t border-[#e5e7eb] px-4 py-4 bg-white space-y-2 sm:px-6">
+              <div className="flex flex-col gap-2 sm:grid sm:grid-cols-3">
                 <Button
                   variant="outline"
                   onClick={async () => {

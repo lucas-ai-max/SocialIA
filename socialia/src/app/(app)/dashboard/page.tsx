@@ -90,7 +90,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-[#1F2937]">
+        <h1 className="text-xl font-semibold tracking-tight text-[#1F2937] md:text-2xl">
           Ola, {firstName}!
         </h1>
         <p className="text-muted-foreground">
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
               return (
                 <Link key={post.id} href={`/post/${post.id}`}>
                 <Card className="cursor-pointer transition-colors hover:bg-muted/50">
-                  <CardContent className="flex items-center gap-4 py-3">
+                  <CardContent className="flex items-center gap-3 py-3 sm:gap-4">
                     {/* Thumbnail */}
                     {post.generated_image_url ? (
                       <img

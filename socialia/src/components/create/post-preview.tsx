@@ -62,10 +62,10 @@ export function PostPreview({
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
+    <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
       {/* Image preview - phone frame mockup */}
-      <div className="flex items-start justify-center">
-        <div className="w-full max-w-sm overflow-hidden rounded-[22px] bg-card shadow-[0_0_8px_0_rgba(0,0,0,0.1)] ring-1 ring-foreground/10">
+      <div className="flex min-w-0 items-start justify-center">
+        <div className="w-full min-w-0 max-w-sm overflow-hidden rounded-[22px] bg-card shadow-[0_0_8px_0_rgba(0,0,0,0.1)] ring-1 ring-foreground/10">
           <div className="flex items-center gap-2 border-b px-4 py-3">
             {userAvatar ? (
               <img src={userAvatar} alt="" className="h-8 w-8 rounded-full object-cover" />
@@ -161,12 +161,12 @@ export function PostPreview({
         </div>
 
         {/* Regenerate actions */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
           <Button
             variant="outline"
             onClick={onRegenerateImage}
             disabled={isRegenerating || credits < 1}
-            className="gap-2"
+            className="w-full gap-2 sm:w-auto"
           >
             <RefreshCw className="h-4 w-4" />
             Regenerar Imagem
@@ -175,7 +175,7 @@ export function PostPreview({
             variant="outline"
             onClick={onRegenerateCaption}
             disabled={isRegenerating}
-            className="gap-2"
+            className="w-full gap-2 sm:w-auto"
           >
             <RefreshCw className="h-4 w-4" />
             Regenerar Legenda
@@ -205,12 +205,12 @@ export function PostPreview({
           </div>
         ) : (
           <div className="flex flex-col gap-3 pt-2">
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
               <Button
                 variant="secondary"
                 onClick={() => onSave(caption, hashtags)}
                 disabled={isRegenerating || isPublishing}
-                className="flex-1 gap-2"
+                className="w-full gap-2 sm:flex-1"
               >
                 <Save className="h-4 w-4" />
                 Salvar Rascunho
@@ -218,7 +218,7 @@ export function PostPreview({
               <Button
                 onClick={() => setScheduleOpen(true)}
                 disabled={isRegenerating || isPublishing}
-                className="flex-1 gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd]"
+                className="w-full gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd] sm:flex-1"
               >
                 <Calendar className="h-4 w-4" />
                 Agendar

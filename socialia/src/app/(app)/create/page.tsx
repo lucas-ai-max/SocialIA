@@ -353,7 +353,7 @@ export default function CreatePage() {
           </Button>
         )}
         <div>
-          <h1 className="text-2xl font-bold">Criar Post</h1>
+          <h1 className="text-xl font-bold md:text-2xl">Criar Post</h1>
           <p className="text-sm text-muted-foreground">
             {step === "mode" && "Escolha como deseja criar seu post"}
             {step === "prompt" && "Descreva sua ideia para o post"}
@@ -557,14 +557,14 @@ export default function CreatePage() {
               Seu rascunho está disponível no painel.
             </p>
           </div>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={handleReset} className="gap-2">
+          <div className="flex w-full max-w-xs flex-col gap-2 sm:w-auto sm:max-w-none sm:flex-row sm:gap-3">
+            <Button variant="outline" onClick={handleReset} className="w-full gap-2 sm:w-auto">
               <Sparkles className="h-4 w-4" />
               Criar outro post
             </Button>
             <Button
               onClick={() => router.push("/dashboard")}
-              className="gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd]"
+              className="w-full gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd] sm:w-auto"
             >
               Ir para o painel
             </Button>

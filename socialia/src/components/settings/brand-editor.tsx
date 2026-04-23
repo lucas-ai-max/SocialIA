@@ -337,7 +337,7 @@ export function BrandEditor({ initialData, userId }: BrandEditorProps) {
           ))}
         </div>
         {colorPalette.length < MAX_COLORS && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <input
               type="color"
               value={normalizeHex(newColor) || "#1A73E8"}
@@ -356,7 +356,7 @@ export function BrandEditor({ initialData, userId }: BrandEditorProps) {
                 }
               }}
               placeholder="#1A73E8 ou rgb(26, 115, 232)"
-              className="flex-1 rounded-full border border-input bg-background px-5 py-2 text-sm font-mono outline-none transition-colors focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8]"
+              className="min-w-0 flex-1 rounded-full border border-input bg-background px-5 py-2 text-sm font-mono outline-none transition-colors focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8]"
             />
             <button
               type="button"
@@ -433,14 +433,14 @@ export function BrandEditor({ initialData, userId }: BrandEditorProps) {
             </span>
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <input
             type="text"
             value={newPillar}
             onChange={(e) => setNewPillar(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPillar(); } }}
             placeholder="Adicionar pilar..."
-            className="flex-1 rounded-full border border-input bg-background px-5 py-2 text-sm font-light outline-none transition-colors focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8]"
+            className="min-w-0 flex-1 rounded-full border border-input bg-background px-5 py-2 text-sm font-light outline-none transition-colors focus:border-[#1A73E8] focus:ring-1 focus:ring-[#1A73E8]"
           />
           <button type="button" onClick={addPillar} disabled={!newPillar.trim()} className="flex items-center gap-1 rounded-full border border-[#1A73E8] px-4 py-2 text-sm text-[#1A73E8] transition-colors hover:bg-[#1A73E8]/10 disabled:opacity-40">
             <Plus className="size-4" />
@@ -471,16 +471,16 @@ export function BrandEditor({ initialData, userId }: BrandEditorProps) {
         </div>
       )}
 
-      <div className="flex gap-2 pt-1">
+      <div className="flex flex-col gap-2 pt-1 sm:flex-row">
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd]"
+          className="w-full gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd] sm:w-auto"
         >
           {isSaving && <Loader2 className="size-4 animate-spin" />}
           Salvar alteracoes
         </Button>
-        <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+        <Button variant="outline" onClick={handleCancel} disabled={isSaving} className="w-full sm:w-auto">
           Cancelar
         </Button>
       </div>

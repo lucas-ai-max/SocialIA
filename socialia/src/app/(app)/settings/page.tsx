@@ -74,9 +74,9 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-[#1F2937]">Configuracoes</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-[#1F2937] md:text-2xl">Configuracoes</h1>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
         {/* Perfil */}
         <Card>
           <CardHeader>

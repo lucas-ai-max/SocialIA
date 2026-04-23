@@ -304,17 +304,17 @@ export default function PostDetailPage() {
           {/* Actions */}
           {canEdit && (
             <div className="flex flex-col gap-3 pt-2">
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                 <Button
                   variant="secondary"
-                  className="flex-1 gap-2"
+                  className="w-full gap-2 sm:flex-1"
                   onClick={handleSave}
                 >
                   Salvar
                 </Button>
                 {!isScheduled ? (
                   <Button
-                    className="flex-1 gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd]"
+                    className="w-full gap-2 bg-[#1A73E8] text-white hover:bg-[#0d5bbd] sm:flex-1"
                     onClick={() => setScheduleOpen(true)}
                   >
                     <Calendar className="h-4 w-4" />
@@ -323,7 +323,7 @@ export default function PostDetailPage() {
                 ) : (
                   <Button
                     variant="outline"
-                    className="flex-1 gap-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    className="w-full gap-2 text-red-600 hover:bg-red-50 hover:text-red-700 sm:flex-1"
                     onClick={async () => {
                       confirmAction("Desagendar este post?", async () => {
                         const res = await apiFetch(`/api/posts/${id}/cancel`, { method: "POST" });

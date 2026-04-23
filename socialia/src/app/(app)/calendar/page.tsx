@@ -208,13 +208,13 @@ export default function CalendarPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-[#1F2937]">
+        <h1 className="flex items-center gap-2 text-xl font-semibold tracking-tight text-[#1F2937] md:text-2xl">
           <CalendarIcon className="size-6 text-[#1A73E8]" />
           Calendario
         </h1>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:gap-6">
         {/* Calendar Grid */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
@@ -371,8 +371,8 @@ export default function CalendarPage() {
 
       {/* Post Preview Dialog */}
       <Dialog open={!!previewPost} onOpenChange={(open) => !open && setPreviewPost(null)}>
-        <DialogContent className="!max-w-3xl !w-[90vw] !max-h-[85vh] !overflow-hidden !rounded-[22px] !p-0 !gap-0 flex flex-col">
-          <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
+        <DialogContent className="max-w-3xl w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] overflow-hidden rounded-[22px] !p-0 !gap-0 flex flex-col">
+          <DialogHeader className="px-4 pt-6 pb-4 shrink-0 sm:px-6">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-lg font-semibold text-[#1F2937]">Detalhes do post</DialogTitle>
               {previewPost && (
@@ -388,14 +388,14 @@ export default function CalendarPage() {
 
           {previewPost && (
             <>
-            <div className="flex-1 overflow-y-auto px-6 space-y-5">
+            <div className="flex-1 overflow-y-auto px-4 space-y-5 sm:px-6">
               {/* Image - contained, centered, max height */}
               {previewPost.generated_image_url && (
                 <div className="flex justify-center rounded-[16px] overflow-hidden bg-[#f4f9fe]">
                   <img
                     src={previewPost.generated_image_url}
                     alt="Post"
-                    className="max-h-[350px] w-auto object-contain"
+                    className="max-h-[240px] w-auto object-contain sm:max-h-[350px]"
                   />
                 </div>
               )}
@@ -430,7 +430,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Footer - always visible, never scrolls */}
-            <div className="shrink-0 border-t border-[#e5e7eb] px-6 py-4 bg-white flex gap-2">
+            <div className="shrink-0 border-t border-[#e5e7eb] px-4 py-4 bg-white flex flex-col gap-2 sm:flex-row sm:px-6">
               {(previewPost.status === "scheduled" || previewPost.status === "draft") && (
                 <>
                   {previewPost.status === "scheduled" && (

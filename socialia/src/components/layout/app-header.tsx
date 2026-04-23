@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -11,7 +13,14 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Settings, LogOut } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Menu, Settings, LogOut } from "lucide-react";
+import { SidebarNavLinks } from "./app-sidebar";
 
 interface AppHeaderProps {
   credits: number;
@@ -33,6 +42,7 @@ function getInitials(name: string | null): string {
 export function AppHeader({ credits, fullName, avatarUrl }: AppHeaderProps) {
   const router = useRouter();
   const supabase = createClient();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -40,15 +50,34 @@ export function AppHeader({ credits, fullName, avatarUrl }: AppHeaderProps) {
   }
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#e5e7eb] bg-white px-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-      <div className="flex items-center">
-        <img src="/logo.png" alt="SocialIA" className="h-28 w-auto" />
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#e5e7eb] bg-white px-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] md:px-6">
+      <div className="flex items-center gap-2">
+        <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+          <SheetTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Abrir menu"
+                className="md:hidden"
+              />
+            }
+          >
+            <Menu className="size-5" />
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[280px] p-0">
+            <SheetTitle className="sr-only">Navegação</SheetTitle>
+            <SidebarNavLinks onNavigate={() => setMobileNavOpen(false)} />
+          </SheetContent>
+        </Sheet>
+        <img src="/logo.png" alt="SocialIA" className="h-10 w-auto md:h-28" />
       </div>
 
-      <div className="flex items-center gap-4">
-        <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-sm">
+      <div className="flex items-center gap-2 md:gap-4">
+        <Badge variant="secondary" className="gap-1.5 px-2.5 py-1 text-sm md:px-3">
           <span className="text-[#F26526]">✦</span>
-          <span>{credits} créditos</span>
+          <span>{credits}</span>
+          <span className="hidden sm:inline">créditos</span>
         </Badge>
 
         <DropdownMenu>

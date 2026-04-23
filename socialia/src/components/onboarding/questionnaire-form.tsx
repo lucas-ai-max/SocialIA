@@ -229,7 +229,7 @@ export function QuestionnaireForm({ userId }: QuestionnaireFormProps) {
           {currentStep === 3 && (
             <div className="space-y-4">
               <Label>Qual e o tom de voz da sua marca?</Label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {VOICE_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -256,7 +256,7 @@ export function QuestionnaireForm({ userId }: QuestionnaireFormProps) {
           {currentStep === 4 && (
             <div className="space-y-4">
               <Label>Qual e o estilo visual da sua marca?</Label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {STYLE_OPTIONS.map((option) => (
                   <button
                     key={option.value}

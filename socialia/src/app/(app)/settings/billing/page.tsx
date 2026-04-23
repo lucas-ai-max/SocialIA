@@ -54,7 +54,7 @@ export default async function BillingPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-[#1F2937]">Cobranca</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-[#1F2937] md:text-2xl">Cobranca</h1>
 
       {showSuccess && (
         <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
