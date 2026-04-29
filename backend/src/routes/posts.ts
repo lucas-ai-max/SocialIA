@@ -384,8 +384,8 @@ router.post("/:id/publish", async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    if (post.status !== "draft") {
-      res.status(400).json({ error: "Apenas posts com status 'draft' podem ser publicados." });
+    if (post.status !== "draft" && post.status !== "scheduled" && post.status !== "failed") {
+      res.status(400).json({ error: "Este post nao pode ser publicado no estado atual." });
       return;
     }
 
