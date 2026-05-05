@@ -82,29 +82,29 @@ router.get("/subscription", authMiddleware, async (req: AuthRequest, res: Respon
   }
 });
 
-// POST /webhook - Webhook da Kiwify (sem auth; valida signature na query string)
+// POST /webhook - Webhook da Kiwify (sem auth; HMAC-SHA1 do body com token do painel)
 router.post("/webhook", async (req: Request, res: Response) => {
-  // DEBUG temporario: logar query e headers pra entender como a Kiwify envia o token
-  console.log("[kiwify/webhook] query:", JSON.stringify(req.query));
-  console.log(
-    "[kiwify/webhook] headers:",
-    JSON.stringify({
-      "x-kiwify-signature": req.headers["x-kiwify-signature"],
-      "x-signature": req.headers["x-signature"],
-      "kiwify-signature": req.headers["kiwify-signature"],
-      "user-agent": req.headers["user-agent"],
-    })
-  );
+  // req.body chega como Buffer (raw body, configurado em src/index.ts)
+  const rawBody: Buffer = Buffer.isBuffer(req.body)
+    ? req.body
+    : Buffer.from(typeof req.body === "string" ? req.body : JSON.stringify(req.body));
 
-  if (!verifyKiwifySignature(req.query.signature)) {
+  if (!verifyKiwifySignature(req.query.signature, rawBody)) {
     console.warn(
-      `[billing/webhook] signature invalida. recebida=${JSON.stringify(req.query.signature)} esperada(len)=${process.env.KIWIFY_WEBHOOK_SECRET?.length ?? 0}`
+      `[billing/webhook] signature invalida. recebida=${JSON.stringify(req.query.signature)} body_len=${rawBody.length}`
     );
     res.status(401).json({ error: "Assinatura invalida." });
     return;
   }
 
-  const payload = req.body as KiwifyWebhookPayload;
+  let payload: KiwifyWebhookPayload;
+  try {
+    payload = JSON.parse(rawBody.toString("utf8")) as KiwifyWebhookPayload;
+  } catch {
+    res.status(400).json({ error: "Body invalido." });
+    return;
+  }
+
   const event = payload.webhook_event_type;
 
   // Log completo do payload ate estabilizarmos o mapeamento de plano

@@ -34,7 +34,15 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "10mb" }));
+// JSON parser para todas as rotas EXCETO webhook Kiwify (que precisa de raw body
+// pra calcular HMAC-SHA1 do payload).
+app.use((req, res, next) => {
+  if (req.path === "/api/billing/webhook") {
+    express.raw({ type: "application/json", limit: "10mb" })(req, res, next);
+  } else {
+    express.json({ limit: "10mb" })(req, res, next);
+  }
+});
 
 // Simple rate limiter
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();

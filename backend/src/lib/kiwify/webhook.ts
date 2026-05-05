@@ -1,17 +1,30 @@
 import crypto from "crypto";
 
-// Kiwify envia o token de webhook diretamente na query string (?signature=<token>)
-// e espera comparacao contra o secret configurado no painel.
-// Se a integracao for trocada para HMAC-sobre-body, este arquivo e o
-// middleware em src/index.ts precisam ser ajustados para raw-body + HMAC.
-export function verifyKiwifySignature(querySignature: unknown): boolean {
+// Kiwify anexa ?signature=<HMAC-SHA1(body, token)> na URL do webhook.
+// O token e mostrado no painel Kiwify ao criar o webhook (KIWIFY_WEBHOOK_SECRET).
+// Quando ha multiplas signatures (ex.: nos ja temos uma na URL configurada),
+// Express parseia como array — pegamos a ultima (a que a Kiwify acabou de anexar).
+export function verifyKiwifySignature(
+  querySignature: unknown,
+  rawBody: Buffer | string
+): boolean {
   const secret = process.env.KIWIFY_WEBHOOK_SECRET;
-  if (!secret || typeof querySignature !== "string") return false;
+  if (!secret) return false;
 
-  const a = Buffer.from(querySignature);
-  const b = Buffer.from(secret);
+  const sig = Array.isArray(querySignature)
+    ? String(querySignature[querySignature.length - 1])
+    : typeof querySignature === "string"
+      ? querySignature
+      : null;
+
+  if (!sig) return false;
+
+  const body = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(rawBody);
+  const computed = crypto.createHmac("sha1", secret).update(body).digest("hex");
+
+  const a = Buffer.from(sig);
+  const b = Buffer.from(computed);
   if (a.length !== b.length) return false;
-
   return crypto.timingSafeEqual(a, b);
 }
 
