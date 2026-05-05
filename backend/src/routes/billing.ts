@@ -266,7 +266,11 @@ async function resolveUserId(
   admin: ReturnType<typeof createAdminClient>,
   payload: KiwifyWebhookPayload
 ): Promise<string | null> {
-  const trackedUserId = payload.TrackingParameters?.s1;
+  const tracking =
+    payload.TrackingParameters ??
+    (payload as { tracking?: { s1?: string } }).tracking ??
+    (payload as { Tracking?: { s1?: string } }).Tracking;
+  const trackedUserId = tracking?.s1;
   if (trackedUserId && isUuid(trackedUserId)) return trackedUserId;
 
   const email = payload.Customer?.email;
